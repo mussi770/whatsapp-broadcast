@@ -640,15 +640,15 @@
     <!-- Variable chips -->
     <div class="var-chips">
       <span class="var-chips-label">הוסף משתנה:</span>
-      <button class="var-chip" data-var="{{first}}" type="button">
-        + שם פרטי <code>{{first}}</code>
+      <button class="var-chip" data-var="[[first]]" type="button">
+        + שם פרטי <code>[[first]]</code>
       </button>
-      <button class="var-chip" data-var="{{last}}" type="button">
-        + שם משפחה <code>{{last}}</code>
+      <button class="var-chip" data-var="[[last]]" type="button">
+        + שם משפחה <code>[[last]]</code>
       </button>
     </div>
 
-    <textarea id="message" placeholder="לדוגמה: שלום {{first}}, יש לנו בשבילך הצעה מיוחדת..." maxlength="4096"></textarea>
+    <textarea id="message" placeholder="לדוגמה: שלום [[first]], יש לנו בשבילך הצעה מיוחדת..." maxlength="4096"></textarea>
 
     <div style="display:flex;justify-content:space-between;align-items:center;margin-top:2px;">
       <span style="font-size:.7rem;color:var(--text-muted)">תמיכה ב-Emoji, *מודגש*, _נטוי_ ומשתנים</span>
@@ -665,7 +665,7 @@
     <!-- Make.com hint — shown when vars are used -->
     <div class="make-hint" id="makeHint">
       💡 <strong>הגדרה ב-Make.com:</strong> בסנריו השליחה, בשדה ההודעה השתמש ב:<br>
-      <code>replace(replace({{message}}; "{{first}}"; {{contact.first}}); "{{last}}"; {{contact.last}})</code>
+      <code>replace(replace({{message}}; "[[first]]"; {{contact.first}}); "[[last]]"; {{contact.last}})</code>
     </div>
   </div>
 
@@ -832,7 +832,7 @@
   // ── Live preview ─────────────────────────────────────────
   function updatePreview() {
     const msg     = $('message').value;
-    const hasVar  = msg.includes('{{first}}') || msg.includes('{{last}}');
+    const hasVar  = msg.includes('[[first]]') || msg.includes('[[last]]');
     const block   = $('previewBlock');
     const hint    = $('makeHint');
 
@@ -842,8 +842,8 @@
     if (!hasVar || !sampleMember) return;
 
     const rendered = msg
-      .replace(/\{\{first\}\}/g, sampleMember.first || '')
-      .replace(/\{\{last\}\}/g,  sampleMember.last  || '');
+      .replace(/\[\[first\]\]/g, sampleMember.first || '')
+      .replace(/\[\[last\]\]/g,  sampleMember.last  || '');
 
     $('previewText').textContent = rendered;
     $('previewName').textContent =
