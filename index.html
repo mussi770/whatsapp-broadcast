@@ -350,6 +350,35 @@
     textarea::placeholder { color: var(--text-muted); }
     .char-count { font-size: 0.72rem; color: var(--text-muted); text-align: left; }
 
+    /* ── Formatting toolbar ── */
+    .fmt-toolbar {
+      display: flex; align-items: center; gap: 4px;
+      background: var(--surface-b); border: 1.5px solid var(--border);
+      border-bottom: none;
+      border-top-left-radius: 12px; border-top-right-radius: 12px;
+      padding: 6px 10px;
+    }
+    .fmt-toolbar + textarea {
+      border-top-left-radius: 0; border-top-right-radius: 0;
+    }
+    .fmt-sep {
+      width: 1px; height: 18px; background: var(--border); margin: 0 3px;
+    }
+    .fmt-btn {
+      width: 30px; height: 30px; border-radius: 7px;
+      background: transparent; border: none;
+      cursor: pointer; display: grid; place-items: center;
+      font-family: 'Heebo', serif; font-size: 0.88rem; color: var(--text-sub);
+      transition: background 0.12s, color 0.12s;
+      flex-shrink: 0;
+    }
+    .fmt-btn:hover { background: var(--surface-c); color: var(--text); }
+    .fmt-btn.bold   { font-weight: 800; }
+    .fmt-btn.italic { font-style: italic; }
+    .fmt-btn.strike { text-decoration: line-through; }
+    .fmt-btn.mono   { font-family: monospace; font-size: 0.82rem; }
+    .fmt-btn.quote  { font-size: 1rem; }
+
     /* ── Variable chips ── */
     .var-chips {
       display: flex; align-items: center; gap: 7px; flex-wrap: wrap;
@@ -394,10 +423,20 @@
     }
     .preview-block-text {
       font-size: 0.9rem; color: var(--text); line-height: 1.65;
-      white-space: pre-wrap; word-break: break-word;
+      word-break: break-word;
     }
-    .preview-block-text .highlight {
-      color: var(--green-dark); font-weight: 700;
+    .preview-block-text strong { font-weight: 800; }
+    .preview-block-text em     { font-style: italic; }
+    .preview-block-text del    { text-decoration: line-through; color: var(--text-muted); }
+    .preview-block-text code   {
+      font-family: monospace; font-size: 0.85rem;
+      background: var(--surface-c); border-radius: 4px; padding: 1px 5px;
+    }
+    .wa-quote {
+      display: block;
+      border-right: 3px solid var(--green);
+      padding-right: 10px; margin: 2px 0;
+      color: var(--text-sub);
     }
 
 
@@ -633,6 +672,16 @@
       </button>
     </div>
 
+    <!-- Formatting toolbar -->
+    <div class="fmt-toolbar">
+      <button class="fmt-btn bold"   data-fmt="bold"   type="button" title="מודגש (*bold*)">B</button>
+      <button class="fmt-btn italic" data-fmt="italic" type="button" title="נטוי (_italic_)">I</button>
+      <button class="fmt-btn strike" data-fmt="strike" type="button" title="חצוי (~strike~)">S</button>
+      <button class="fmt-btn mono"   data-fmt="mono"   type="button" title="קוד (```mono```)">M</button>
+      <div class="fmt-sep"></div>
+      <button class="fmt-btn quote"  data-fmt="quote"  type="button" title='ציטוט ("> ")'>❝</button>
+    </div>
+
     <textarea id="message" placeholder="לדוגמה: שלום [[first]], יש לנו בשבילך הצעה מיוחדת..." maxlength="4096"></textarea>
 
     <div style="display:flex;justify-content:space-between;align-items:center;margin-top:2px;">
@@ -795,6 +844,63 @@
     }
   });
 
+  // ── Formatting toolbar ───────────────────────────────────
+  const FMT = {
+    bold:   { open: '*',   close: '*'   },
+    italic: { open: '_',   close: '_'   },
+    strike: { open: '~',   close: '~'   },
+    mono:   { open: '```', close: '```' },
+  };
+
+  function wrapSelection(el, open, close) {
+    const start = el.selectionStart;
+    const end   = el.selectionEnd;
+    const sel   = el.value.slice(start, end) || 'טקסט';
+    el.value = el.value.slice(0, start) + open + sel + close + el.value.slice(end);
+    el.selectionStart = start + open.length;
+    el.selectionEnd   = start + open.length + sel.length;
+    el.focus();
+    el.dispatchEvent(new Event('input'));
+  }
+
+  function applyQuote(el) {
+    const start    = el.selectionStart;
+    const end      = el.selectionEnd;
+    const before   = el.value.slice(0, start);
+    const selected = el.value.slice(start, end) || '';
+    const after    = el.value.slice(end);
+    const lineStart = before.lastIndexOf('\n') + 1;
+    const block     = el.value.slice(lineStart, end || el.value.length);
+    const quoted    = block.split('\n').map(l => '> ' + l).join('\n');
+    el.value = el.value.slice(0, lineStart) + quoted + after;
+    el.selectionStart = lineStart;
+    el.selectionEnd   = lineStart + quoted.length;
+    el.focus();
+    el.dispatchEvent(new Event('input'));
+  }
+
+  document.querySelectorAll('.fmt-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const el  = $('message');
+      const fmt = btn.dataset.fmt;
+      if (fmt === 'quote') { applyQuote(el); return; }
+      const { open, close } = FMT[fmt];
+      wrapSelection(el, open, close);
+    });
+  });
+
+  // ── WhatsApp markdown → HTML (for preview) ───────────────
+  function renderWhatsApp(text) {
+    return text
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/```([\s\S]*?)```/g, '<code>$1</code>')
+      .replace(/\*([^*\n]+)\*/g,   '<strong>$1</strong>')
+      .replace(/_([^_\n]+)_/g,     '<em>$1</em>')
+      .replace(/~([^~\n]+)~/g,     '<del>$1</del>')
+      .replace(/^&gt; (.+)$/gm,    '<span class="wa-quote">$1</span>')
+      .replace(/\n/g, '<br>');
+  }
+
   // ── Variable chips ───────────────────────────────────────
   function insertAtCursor(el, text) {
     const start = el.selectionStart;
@@ -811,20 +917,29 @@
 
   // ── Live preview ─────────────────────────────────────────
   function updatePreview() {
-    const msg     = $('message').value;
-    const hasVar  = msg.includes('[[first]]') || msg.includes('[[last]]');
-    const block   = $('previewBlock');
-    block.classList.toggle('visible', !!(hasVar && sampleMember));
+    const msg    = $('message').value;
+    const hasVar = msg.includes('[[first]]') || msg.includes('[[last]]');
+    const hasFmt = /[*_~`]|^> /m.test(msg);
+    const block  = $('previewBlock');
+    const nameEl = $('previewName');
 
-    if (!hasVar || !sampleMember) return;
+    const show = msg.trim() && (hasFmt || (hasVar && sampleMember));
+    block.classList.toggle('visible', !!show);
+    if (!show) return;
 
-    const rendered = msg
-      .replace(/\[\[first\]\]/g, sampleMember.first || '')
-      .replace(/\[\[last\]\]/g,  sampleMember.last  || '');
+    const rendered = (hasVar && sampleMember)
+      ? msg.replace(/\[\[first\]\]/g, sampleMember.first || '')
+           .replace(/\[\[last\]\]/g,  sampleMember.last  || '')
+      : msg;
 
-    $('previewText').textContent = rendered;
-    $('previewName').textContent =
-      `לדוגמה עבור: ${sampleMember.name || [sampleMember.first, sampleMember.last].filter(Boolean).join(' ')}`;
+    $('previewText').innerHTML = renderWhatsApp(rendered);
+
+    if (hasVar && sampleMember) {
+      nameEl.textContent = `לדוגמה עבור: ${sampleMember.name || [sampleMember.first, sampleMember.last].filter(Boolean).join(' ')}`;
+      nameEl.style.display = 'block';
+    } else {
+      nameEl.style.display = 'none';
+    }
   }
 
   // ── GREEN API status ──────────────────────────────────────
