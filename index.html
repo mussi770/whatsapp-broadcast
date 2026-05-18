@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="he" dir="rtl">
+<html lang="he" dir="rtl" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -10,13 +10,13 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    :root {
+    /* ══ LIGHT theme ══ */
+    :root, [data-theme="light"] {
       --bg:          #f0f4f8;
       --surface:     #ffffff;
       --surface-b:   #f7fafc;
       --surface-c:   #edf2f7;
       --border:      #e2e8f0;
-      --border-focus:#25d366;
       --green:       #25d366;
       --green-dark:  #1aa34a;
       --green-soft:  #e8faf0;
@@ -26,16 +26,42 @@
       --text-muted:  #a0aec0;
       --danger:      #e53e3e;
       --danger-soft: #fff5f5;
-      --warn:        #d69e2e;
+      --warn:        #b7791f;
       --warn-soft:   #fffff0;
       --info:        #3182ce;
       --info-soft:   #ebf8ff;
-      --shadow-sm:   0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.05);
+      --shadow-sm:   0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
       --shadow:      0 4px 16px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04);
       --shadow-lg:   0 12px 40px rgba(0,0,0,0.12), 0 4px 16px rgba(0,0,0,0.06);
-      --radius:      18px;
-      --radius-sm:   12px;
-      --radius-xs:   8px;
+      --toggle-bg:   #e2e8f0;
+      --toggle-icon: "🌙";
+    }
+
+    /* ══ DARK theme ══ */
+    [data-theme="dark"] {
+      --bg:          #080c10;
+      --surface:     #111820;
+      --surface-b:   rgba(255,255,255,0.05);
+      --surface-c:   rgba(255,255,255,0.09);
+      --border:      rgba(255,255,255,0.09);
+      --green:       #25d366;
+      --green-dark:  #1aa34a;
+      --green-soft:  rgba(37,211,102,0.1);
+      --green-mid:   rgba(37,211,102,0.15);
+      --text:        #eef2f6;
+      --text-sub:    #8fa3b8;
+      --text-muted:  #4e6175;
+      --danger:      #fc8181;
+      --danger-soft: rgba(252,129,129,0.1);
+      --warn:        #f6e05e;
+      --warn-soft:   rgba(246,224,94,0.1);
+      --info:        #63b3ed;
+      --info-soft:   rgba(99,179,237,0.1);
+      --shadow-sm:   0 1px 4px rgba(0,0,0,0.3);
+      --shadow:      0 4px 20px rgba(0,0,0,0.35);
+      --shadow-lg:   0 16px 50px rgba(0,0,0,0.55);
+      --toggle-bg:   rgba(255,255,255,0.1);
+      --toggle-icon: "☀️";
     }
 
     body {
@@ -45,12 +71,25 @@
       min-height: 100vh;
       display: flex; flex-direction: column; align-items: center;
       padding: 36px 16px 80px;
+      transition: background 0.3s, color 0.3s;
     }
+
+    /* ── Theme toggle ── */
+    .theme-toggle {
+      position: fixed; top: 16px; left: 16px; z-index: 300;
+      width: 40px; height: 40px; border-radius: 50%;
+      background: var(--surface); border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      cursor: pointer; font-size: 1.1rem;
+      display: grid; place-items: center;
+      transition: all 0.2s;
+    }
+    .theme-toggle:hover { transform: scale(1.1); box-shadow: var(--shadow); }
 
     /* ── Header ── */
     header {
       display: flex; flex-direction: column; align-items: center;
-      gap: 4px; margin-bottom: 28px; text-align: center;
+      gap: 4px; margin-bottom: 26px; text-align: center;
     }
     .logo-wrap {
       width: 60px; height: 60px;
@@ -60,42 +99,44 @@
       margin-bottom: 8px;
     }
     .logo-wrap svg { width: 32px; height: 32px; fill: #fff; }
-    header h1 { font-size: 1.6rem; font-weight: 800; color: var(--text); letter-spacing: -0.4px; }
+    header h1 { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.4px; color: var(--text); }
     header .sub { font-size: 0.8rem; color: var(--text-muted); margin-top: 2px; }
 
     /* ── Status banner ── */
     .status-bar {
-      width: 100%; max-width: 560px; border-radius: var(--radius-sm);
+      width: 100%; max-width: 560px; border-radius: 12px;
       padding: 12px 16px; margin-bottom: 16px;
       display: flex; align-items: flex-start; gap: 12px;
       border: 1px solid transparent; font-size: 0.86rem; line-height: 1.5;
-      box-shadow: var(--shadow-sm);
+      box-shadow: var(--shadow-sm); transition: background 0.3s, border-color 0.3s;
     }
     .status-bar.loading { background: var(--surface); border-color: var(--border); color: var(--text-sub); }
-    .status-bar.ok  { background: var(--green-soft); border-color: rgba(37,211,102,0.3); color: #276749; }
-    .status-bar.qr  { background: var(--info-soft);  border-color: rgba(49,130,206,0.3); color: #2c5282; }
-    .status-bar.pay { background: var(--warn-soft);  border-color: rgba(214,158,46,0.3); color: #744210; }
-    .status-bar.err { background: var(--danger-soft);border-color: rgba(229,62,62,0.3);  color: #742a2a; }
+    .status-bar.ok  { background: var(--green-soft);  border-color: rgba(37,211,102,0.3);  color: var(--green-dark); }
+    .status-bar.qr  { background: var(--info-soft);   border-color: rgba(49,130,206,0.3);  color: var(--info); }
+    .status-bar.pay { background: var(--warn-soft);   border-color: rgba(183,121,31,0.3);  color: var(--warn); }
+    .status-bar.err { background: var(--danger-soft); border-color: rgba(229,62,62,0.3);   color: var(--danger); }
     .status-icon { font-size: 1.05rem; flex-shrink: 0; margin-top: 1px; }
     .status-body strong { display: block; font-weight: 700; margin-bottom: 2px; font-size: 0.88rem; }
-    .btn-qr {
+    .btn-action {
       display: inline-flex; align-items: center; gap: 5px; margin-top: 8px;
       padding: 6px 13px; background: var(--info); border: none;
-      border-radius: var(--radius-xs); color: #fff;
+      border-radius: 8px; color: #fff;
       font-family: 'Heebo', sans-serif; font-size: 0.8rem; font-weight: 600;
       cursor: pointer; text-decoration: none; transition: opacity 0.15s;
     }
-    .btn-qr:hover { opacity: 0.88; }
+    .btn-action:hover { opacity: 0.85; }
+    .btn-action.retry { background: var(--text-sub); }
 
     /* ── Card ── */
     .card {
       width: 100%; max-width: 560px;
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: var(--radius);
+      border-radius: 18px;
       padding: 28px 24px;
       display: flex; flex-direction: column; gap: 22px;
       box-shadow: var(--shadow);
+      transition: background 0.3s, border-color 0.3s;
     }
 
     /* ── Field ── */
@@ -109,12 +150,12 @@
     .picker { position: relative; user-select: none; }
     .picker-trigger {
       width: 100%; background: var(--surface-b);
-      border: 1.5px solid var(--border); border-radius: var(--radius-sm);
-      padding: 12px 16px 12px 42px;
-      cursor: pointer; display: flex; align-items: center;
-      transition: border-color 0.2s, box-shadow 0.2s; min-height: 48px;
+      border: 1.5px solid var(--border); border-radius: 12px;
+      padding: 12px 16px 12px 42px; cursor: pointer;
+      display: flex; align-items: center; min-height: 48px;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.3s;
     }
-    .picker-trigger:hover { border-color: #cbd5e0; }
+    .picker-trigger:hover { border-color: rgba(37,211,102,0.4); }
     .picker-trigger.open {
       border-color: var(--green);
       box-shadow: 0 0 0 3px rgba(37,211,102,0.12);
@@ -123,41 +164,36 @@
     .picker-trigger .ph  { color: var(--text-muted); font-size: 0.92rem; }
     .picker-trigger .sel { color: var(--text); font-size: 0.95rem; font-weight: 600; }
     .picker-arrow {
-      position: absolute; left: 14px; top: 50%;
-      transform: translateY(-50%); color: var(--text-muted);
-      font-size: 0.8rem; pointer-events: none;
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      color: var(--text-muted); font-size: 0.8rem; pointer-events: none;
       transition: transform 0.2s;
     }
     .picker.open .picker-arrow { transform: translateY(-50%) rotate(180deg); }
-
     .picker-panel {
       position: absolute; top: 100%; right: 0; left: 0; z-index: 50;
       background: var(--surface);
-      border: 1.5px solid var(--green);
-      border-top: none;
-      border-bottom-left-radius: var(--radius-sm);
-      border-bottom-right-radius: var(--radius-sm);
+      border: 1.5px solid var(--green); border-top: none;
+      border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;
       box-shadow: var(--shadow-lg);
       display: none; flex-direction: column; max-height: 300px;
+      transition: background 0.3s;
     }
     .picker.open .picker-panel { display: flex; }
-
     .picker-search-wrap { padding: 9px 10px 6px; border-bottom: 1px solid var(--border); }
     .picker-search {
       width: 100%; background: var(--surface-b);
-      border: 1.5px solid var(--border); border-radius: var(--radius-xs);
+      border: 1.5px solid var(--border); border-radius: 8px;
       padding: 8px 12px; color: var(--text);
       font-family: 'Heebo', sans-serif; font-size: 0.86rem; outline: none;
-      transition: border-color 0.2s;
+      transition: border-color 0.2s, background 0.3s;
     }
     .picker-search:focus { border-color: var(--green); }
     .picker-search::placeholder { color: var(--text-muted); }
-
     .picker-list { overflow-y: auto; padding: 5px 6px; }
     .picker-item {
       display: flex; align-items: center; gap: 11px;
-      padding: 10px 11px; border-radius: var(--radius-xs);
-      cursor: pointer; transition: background 0.1s;
+      padding: 10px 11px; border-radius: 8px; cursor: pointer;
+      transition: background 0.1s;
     }
     .picker-item:hover { background: var(--surface-c); }
     .picker-item.selected { background: var(--green-soft); }
@@ -165,6 +201,7 @@
       width: 32px; height: 32px; border-radius: 9px;
       background: var(--surface-c); display: grid; place-items: center;
       font-size: 0.82rem; font-weight: 700; color: var(--text-sub); flex-shrink: 0;
+      transition: background 0.3s;
     }
     .picker-item.selected .picker-item-icon { background: var(--green-mid); color: var(--green-dark); }
     .picker-item-name { flex: 1; font-size: 0.91rem; font-weight: 500; color: var(--text); }
@@ -175,21 +212,21 @@
     /* ── Details Card ── */
     .details-card {
       background: var(--surface-b); border: 1.5px solid var(--border);
-      border-radius: var(--radius-sm); overflow: hidden;
+      border-radius: 12px; overflow: hidden;
+      transition: background 0.3s, border-color 0.3s;
     }
     .details-card.hidden { display: none; }
     .details-header {
       padding: 12px 16px; border-bottom: 1px solid var(--border);
       display: flex; align-items: center; justify-content: space-between; gap: 10px;
-      background: var(--surface);
+      background: var(--surface); transition: background 0.3s;
     }
     .details-list-name { font-size: 0.9rem; font-weight: 700; color: var(--text); }
     .count-pill {
       display: inline-flex; align-items: center; gap: 5px;
       background: var(--green-soft); border: 1px solid rgba(37,211,102,0.3);
       border-radius: 20px; padding: 3px 12px;
-      font-size: 0.78rem; font-weight: 700; color: var(--green-dark);
-      white-space: nowrap;
+      font-size: 0.78rem; font-weight: 700; color: var(--green-dark); white-space: nowrap;
     }
     .details-body { padding: 14px 16px; }
     .details-loading { display: flex; align-items: center; gap: 9px; font-size: 0.83rem; color: var(--text-muted); }
@@ -199,29 +236,30 @@
     }
     .samples-grid { display: flex; flex-wrap: wrap; gap: 7px; }
     .sample-chip {
-      display: inline-flex; align-items: center; gap: 7px;
+      display: inline-flex; align-items: center; gap: 8px;
       background: var(--surface); border: 1px solid var(--border);
-      border-radius: 20px; padding: 5px 12px 5px 6px;
-      font-size: 0.81rem; color: var(--text-sub);
-      box-shadow: var(--shadow-sm);
+      border-radius: 20px; padding: 5px 14px 5px 6px;
+      font-size: 0.81rem; box-shadow: var(--shadow-sm);
+      transition: background 0.3s, border-color 0.3s;
     }
     .sample-avatar {
-      width: 22px; height: 22px; border-radius: 50%;
+      width: 24px; height: 24px; border-radius: 50%;
       background: var(--green-soft); display: grid; place-items: center;
-      font-size: 0.65rem; font-weight: 800; color: var(--green-dark); flex-shrink: 0;
+      font-size: 0.66rem; font-weight: 800; color: var(--green-dark); flex-shrink: 0;
     }
-    .sample-name { font-weight: 600; color: var(--text); }
-    .sample-phone { font-size: 0.74rem; color: var(--text-muted); direction: ltr; }
+    .sample-info .sample-name  { font-size: 0.82rem; font-weight: 600; color: var(--text); line-height: 1.2; }
+    .sample-info .sample-phone { font-size: 0.73rem; color: var(--text-muted); direction: ltr; }
     .details-note { font-size: 0.8rem; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+    .more-label { font-size: 0.74rem; color: var(--text-muted); margin-top: 10px; }
 
     /* ── Textarea ── */
     textarea {
       width: 100%; background: var(--surface-b);
-      border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+      border: 1.5px solid var(--border); border-radius: 12px;
       color: var(--text); font-family: 'Heebo', sans-serif;
       font-size: 0.95rem; padding: 13px 15px; outline: none;
       resize: vertical; min-height: 145px; line-height: 1.65;
-      transition: border-color 0.2s, box-shadow 0.2s;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.3s;
     }
     textarea:focus {
       border-color: var(--green);
@@ -240,18 +278,17 @@
 
     .err-inline {
       background: var(--danger-soft); border: 1px solid rgba(229,62,62,0.25);
-      border-radius: var(--radius-sm); padding: 10px 14px;
+      border-radius: 12px; padding: 10px 14px;
       font-size: 0.84rem; color: var(--danger); display: none;
     }
     .err-inline.visible { display: block; }
-
     hr { border: none; border-top: 1px solid var(--border); }
 
     /* ── Send button ── */
     .btn-send {
       width: 100%;
-      background: linear-gradient(135deg, #25d366 0%, #1aa34a 100%);
-      border: none; border-radius: var(--radius-sm); padding: 14px 24px;
+      background: linear-gradient(135deg, #25d366, #1aa34a);
+      border: none; border-radius: 12px; padding: 14px 24px;
       color: #fff; font-family: 'Heebo', sans-serif;
       font-size: 0.97rem; font-weight: 700; cursor: pointer;
       display: flex; align-items: center; justify-content: center; gap: 10px;
@@ -260,23 +297,24 @@
     }
     .btn-send:hover:not(:disabled) { box-shadow: 0 6px 24px rgba(37,211,102,0.45); transform: translateY(-1px); }
     .btn-send:active:not(:disabled) { transform: translateY(0); }
-    .btn-send:disabled { opacity: 0.35; cursor: not-allowed; box-shadow: none; transform: none; }
+    .btn-send:disabled { opacity: 0.32; cursor: not-allowed; box-shadow: none; transform: none; }
     .btn-send svg { width: 18px; height: 18px; fill: currentColor; flex-shrink: 0; }
 
     /* ── Modal ── */
     .overlay {
-      position: fixed; inset: 0; background: rgba(26,32,44,0.5);
+      position: fixed; inset: 0; background: rgba(0,0,0,0.45);
       backdrop-filter: blur(4px); display: none; place-items: center;
       z-index: 100; padding: 16px;
     }
     .overlay.open { display: grid; }
     .modal {
       background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 28px 24px;
+      border-radius: 18px; padding: 28px 24px;
       width: 100%; max-width: 420px;
       display: flex; flex-direction: column; gap: 18px;
       box-shadow: var(--shadow-lg);
       animation: pop 0.2s cubic-bezier(0.34,1.56,0.64,1);
+      transition: background 0.3s;
     }
     @keyframes pop {
       from { transform: scale(0.93) translateY(10px); opacity: 0; }
@@ -293,29 +331,30 @@
     .modal-head p { font-size: 0.76rem; color: var(--text-muted); margin-top: 2px; }
     .modal-detail {
       background: var(--surface-b); border: 1px solid var(--border);
-      border-radius: var(--radius-sm); padding: 14px 16px;
+      border-radius: 12px; padding: 14px 16px;
       display: flex; flex-direction: column; gap: 9px;
+      transition: background 0.3s;
     }
     .detail-row { font-size: 0.84rem; display: flex; gap: 6px; align-items: baseline; }
     .detail-row .lbl { color: var(--text-muted); flex-shrink: 0; }
     .detail-row .val { color: var(--text); font-weight: 600; }
     .preview-msg {
       background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius-xs); padding: 10px 12px;
+      border-radius: 8px; padding: 10px 12px;
       font-size: 0.84rem; white-space: pre-wrap; word-break: break-word;
       color: var(--text-sub); max-height: 100px; overflow-y: auto; line-height: 1.6;
     }
     .modal-warn {
       display: flex; align-items: flex-start; gap: 6px;
       font-size: 0.77rem; color: var(--warn);
-      background: var(--warn-soft); border: 1px solid rgba(214,158,46,0.25);
-      border-radius: var(--radius-xs); padding: 9px 12px;
+      background: var(--warn-soft); border: 1px solid rgba(183,121,31,0.2);
+      border-radius: 8px; padding: 9px 12px;
     }
     .modal-actions { display: flex; gap: 10px; }
     .btn-cancel {
       flex: 1; padding: 12px;
       background: var(--surface-b); border: 1.5px solid var(--border);
-      border-radius: var(--radius-sm); color: var(--text-sub);
+      border-radius: 12px; color: var(--text-sub);
       font-family: 'Heebo', sans-serif; font-size: 0.9rem; font-weight: 600;
       cursor: pointer; transition: all 0.15s;
     }
@@ -323,7 +362,7 @@
     .btn-confirm {
       flex: 2; padding: 12px;
       background: linear-gradient(135deg, #25d366, #1aa34a);
-      border: none; border-radius: var(--radius-sm); color: #fff;
+      border: none; border-radius: 12px; color: #fff;
       font-family: 'Heebo', sans-serif; font-size: 0.9rem; font-weight: 700;
       cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
       box-shadow: 0 3px 12px rgba(37,211,102,0.3);
@@ -336,7 +375,7 @@
     .toast {
       position: fixed; bottom: 24px; left: 50%;
       transform: translateX(-50%) translateY(80px);
-      background: var(--text); border-radius: 40px; padding: 11px 22px;
+      border-radius: 40px; padding: 11px 22px;
       font-size: 0.86rem; font-weight: 600; color: #fff;
       display: flex; align-items: center; gap: 8px;
       box-shadow: 0 8px 32px rgba(0,0,0,0.2);
@@ -344,8 +383,8 @@
       opacity: 0; z-index: 200; white-space: nowrap;
     }
     .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
-    .toast.success { background: var(--green-dark); }
-    .toast.error   { background: var(--danger); }
+    .toast.success { background: #1aa34a; }
+    .toast.error   { background: #e53e3e; }
 
     /* ── Footer ── */
     footer { margin-top: 32px; text-align: center; display: flex; flex-direction: column; gap: 4px; }
@@ -360,6 +399,9 @@
 </head>
 <body>
 
+<!-- Theme toggle -->
+<button class="theme-toggle" id="themeToggle" title="החלף תצוגה" aria-label="החלף בין תצוגה כהה לבהירה">🌙</button>
+
 <header>
   <div class="logo-wrap">
     <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
@@ -368,7 +410,6 @@
   <p class="sub">בנוי ע"י מוסי שיינר</p>
 </header>
 
-<!-- GREEN API Status -->
 <div class="status-bar loading" id="statusBar">
   <div class="status-icon"><div class="spinner"></div></div>
   <div class="status-body"><strong>בודק חיבור GREEN API...</strong></div>
@@ -376,7 +417,6 @@
 
 <div class="card">
 
-  <!-- ── List Picker ── -->
   <div class="field">
     <label>רשימת תפוצה</label>
     <div id="pickerLoading" style="display:flex;align-items:center;gap:9px;font-size:.84rem;color:var(--text-muted);">
@@ -397,12 +437,11 @@
     <div id="listsError" class="err-inline">לא ניתן לטעון רשימות. נסי לרענן.</div>
   </div>
 
-  <!-- ── Details Card ── -->
   <div class="details-card hidden" id="detailsCard">
     <div class="details-header">
       <span class="details-list-name" id="detailsListName"></span>
       <span class="count-pill" id="countPill" style="display:none;">
-        👥 <span id="countNum">0</span> נמענים
+        📱 <span id="countNum">0</span> עם מספר טלפון
       </span>
     </div>
     <div class="details-body" id="detailsBody">
@@ -412,7 +451,6 @@
 
   <hr />
 
-  <!-- ── Message ── -->
   <div class="field">
     <label>תוכן ההודעה</label>
     <textarea id="message" placeholder="הקלידי את תוכן ההודעה כאן..." maxlength="4096"></textarea>
@@ -436,7 +474,6 @@
   <div class="footer-powered"><div class="green-dot"></div> ההודעות נשלחות דרך GREEN API</div>
 </footer>
 
-<!-- Modal -->
 <div class="overlay" id="overlay">
   <div class="modal" role="dialog" aria-modal="true">
     <div class="modal-head">
@@ -448,7 +485,7 @@
     </div>
     <div class="modal-detail">
       <div class="detail-row"><span class="lbl">רשימה:</span><span class="val" id="confirmList">—</span></div>
-      <div class="detail-row" id="confirmCountRow" style="display:none;"><span class="lbl">נמענים:</span><span class="val" id="confirmCount">—</span></div>
+      <div class="detail-row" id="confirmCountRow" style="display:none;"><span class="lbl">נמענים עם טלפון:</span><span class="val" id="confirmCount">—</span></div>
       <div class="preview-msg" id="confirmMsg"></div>
     </div>
     <div class="modal-warn">⚠️ ההודעה תישלח לכל אנשי הקשר ברשימה. פעולה זו בלתי הפיכה.</div>
@@ -469,72 +506,66 @@
   const SEND_URL         = 'https://hook.eu1.make.com/8r0p1dqtlqul4i3rexil6o8s0uxkx8iu';
   const LIST_DETAILS_URL = 'https://hook.eu1.make.com/t8acjxcafqloo6g3la7aauhmvpwod1lc';
   const GREEN_ID         = '1101869854';
-  const GREEN_TOKEN      = '98fa934eede54e25a65c9d91855d356eb88db0ef7fd245398a';
+  const GREEN_TOKEN      = '98fa934eede54e25a65c9d91885d356eb88db0ef7fd245398a';
   const GREEN_QR         = `https://qr.green-api.com/waInstance${GREEN_ID}/${GREEN_TOKEN}`;
 
   let greenOK = false, selectedId = null, selectedName = null, selectedCount = null;
   let listsData = [];
 
-  // refs
   const $ = id => document.getElementById(id);
-  const statusBar    = $('statusBar');
-  const pickerLoading= $('pickerLoading');
-  const picker       = $('picker');
-  const pickerTrigger= $('pickerTrigger');
-  const pickerLabel  = $('pickerLabel');
-  const pickerSearch = $('pickerSearch');
-  const pickerList   = $('pickerList');
-  const listsError   = $('listsError');
-  const detailsCard  = $('detailsCard');
-  const detailsListName = $('detailsListName');
-  const countPill    = $('countPill');
-  const countNum     = $('countNum');
-  const detailsBody  = $('detailsBody');
-  const messageEl    = $('message');
-  const charCount    = $('charCount');
-  const sendBtn      = $('sendBtn');
-  const sendError    = $('sendError');
-  const overlay      = $('overlay');
-  const cancelBtn    = $('cancelBtn');
-  const confirmBtn   = $('confirmBtn');
-  const confirmList  = $('confirmList');
-  const confirmCount = $('confirmCount');
-  const confirmCountRow = $('confirmCountRow');
-  const confirmMsg   = $('confirmMsg');
-  const toast        = $('toast');
 
-  // ── GREEN API ────────────────────────────────────────────
+  // ── Theme toggle ──────────────────────────────────────────
+  const html         = document.documentElement;
+  const themeToggle  = $('themeToggle');
+  const saved        = localStorage.getItem('theme') || 'light';
+  html.dataset.theme = saved;
+  themeToggle.textContent = saved === 'dark' ? '☀️' : '🌙';
+
+  themeToggle.addEventListener('click', () => {
+    const next = html.dataset.theme === 'dark' ? 'light' : 'dark';
+    html.dataset.theme = next;
+    themeToggle.textContent = next === 'dark' ? '☀️' : '🌙';
+    localStorage.setItem('theme', next);
+  });
+
+  // ── GREEN API status ──────────────────────────────────────
   async function checkGreenStatus() {
-    statusBar.className = 'status-bar loading';
-    statusBar.innerHTML = `<div class="status-icon"><div class="spinner"></div></div><div class="status-body"><strong>בודק חיבור GREEN API...</strong></div>`;
+    const bar = $('statusBar');
+    bar.className = 'status-bar loading';
+    bar.innerHTML = `<div class="status-icon"><div class="spinner"></div></div><div class="status-body"><strong>בודק חיבור GREEN API...</strong></div>`;
     try {
-      const res = await fetch(`https://api.green-api.com/waInstance${GREEN_ID}/getStateInstance/${GREEN_TOKEN}`);
+      const res = await fetch(
+        `https://api.green-api.com/waInstance${GREEN_ID}/getStateInstance/${GREEN_TOKEN}`,
+        { cache: 'no-store' }
+      );
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const { stateInstance: s } = await res.json();
+
       if (s === 'authorized') {
         greenOK = true;
-        statusBar.className = 'status-bar ok';
-        statusBar.innerHTML = `<div class="status-icon">✅</div><div class="status-body"><strong>GREEN API מחובר ופעיל</strong>ניתן לשלוח הודעות</div>`;
+        bar.className = 'status-bar ok';
+        bar.innerHTML = `<div class="status-icon">✅</div><div class="status-body"><strong>GREEN API מחובר ופעיל</strong>ניתן לשלוח הודעות</div>`;
       } else if (s === 'notAuthorized') {
-        statusBar.className = 'status-bar qr';
-        statusBar.innerHTML = `<div class="status-icon">📱</div><div class="status-body"><strong>ווצאפ לא מחובר</strong>יש לסרוק ברקוד כדי לחבר את החשבון<br><a class="btn-qr" href="${GREEN_QR}" target="_blank">📷 פתח דף סריקת ברקוד</a></div>`;
+        bar.className = 'status-bar qr';
+        bar.innerHTML = `<div class="status-icon">📱</div><div class="status-body"><strong>ווצאפ לא מחובר</strong>יש לסרוק ברקוד כדי לחבר את החשבון<br><a class="btn-action" href="${GREEN_QR}" target="_blank">📷 פתח דף סריקת ברקוד</a></div>`;
       } else if (s === 'blocked') {
-        statusBar.className = 'status-bar pay';
-        statusBar.innerHTML = `<div class="status-icon">💳</div><div class="status-body"><strong>החשבון חסום — נדרש תשלום</strong>מנוי GREEN API פג תוקפו.</div>`;
+        bar.className = 'status-bar pay';
+        bar.innerHTML = `<div class="status-icon">💳</div><div class="status-body"><strong>החשבון חסום — נדרש תשלום</strong>מנוי GREEN API פג תוקפו.</div>`;
       } else if (s === 'sleepMode') {
-        statusBar.className = 'status-bar pay';
-        statusBar.innerHTML = `<div class="status-icon">💤</div><div class="status-body"><strong>ה-Instance במצב שינה</strong>הפעל מחדש בלוח הבקרה של GREEN API.</div>`;
+        bar.className = 'status-bar pay';
+        bar.innerHTML = `<div class="status-icon">💤</div><div class="status-body"><strong>ה-Instance במצב שינה</strong>הפעל מחדש בלוח הבקרה של GREEN API.</div>`;
       } else {
-        statusBar.className = 'status-bar err';
-        statusBar.innerHTML = `<div class="status-icon">⚠️</div><div class="status-body"><strong>סטטוס: ${s}</strong>בדקי בלוח הבקרה של GREEN API.</div>`;
+        bar.className = 'status-bar err';
+        bar.innerHTML = `<div class="status-icon">⚠️</div><div class="status-body"><strong>סטטוס: ${s}</strong></div>`;
       }
-    } catch {
-      statusBar.className = 'status-bar err';
-      statusBar.innerHTML = `<div class="status-icon">❌</div><div class="status-body"><strong>לא ניתן להתחבר ל-GREEN API</strong><button class="btn-qr" onclick="checkGreenStatus()" style="margin-top:6px;">🔄 נסה שוב</button></div>`;
+    } catch (err) {
+      bar.className = 'status-bar err';
+      bar.innerHTML = `<div class="status-icon">❌</div><div class="status-body"><strong>לא ניתן להתחבר ל-GREEN API</strong><br><button class="btn-action retry" onclick="checkGreenStatus()" style="margin-top:6px;">🔄 נסה שוב</button></div>`;
     }
     checkReady();
   }
 
-  // ── Load Lists ───────────────────────────────────────────
+  // ── Load lists ────────────────────────────────────────────
   async function loadLists() {
     try {
       const res  = await fetch(GET_LISTS_URL);
@@ -542,17 +573,18 @@
       const data = await res.json();
       listsData  = Array.isArray(data) ? data : (data.lists || data.data || []);
       renderPicker(listsData);
-      pickerLoading.style.display = 'none';
-      picker.style.display = 'block';
+      $('pickerLoading').style.display = 'none';
+      $('picker').style.display = 'block';
     } catch {
-      pickerLoading.style.display = 'none';
-      listsError.classList.add('visible');
+      $('pickerLoading').style.display = 'none';
+      $('listsError').classList.add('visible');
     }
   }
 
   function renderPicker(items) {
-    pickerList.innerHTML = '';
-    if (!items.length) { pickerList.innerHTML = '<div class="picker-empty">לא נמצאו רשימות</div>'; return; }
+    const list = $('pickerList');
+    list.innerHTML = '';
+    if (!items.length) { list.innerHTML = '<div class="picker-empty">לא נמצאו רשימות</div>'; return; }
     items.forEach(item => {
       const id   = String(item.id ?? item.list_id ?? item.name ?? item);
       const name = item.name ?? item.title ?? id;
@@ -564,22 +596,23 @@
         <span class="picker-item-name">${name}</span>
         <span class="picker-item-check">✓</span>`;
       div.addEventListener('click', () => onSelect(id, name));
-      pickerList.appendChild(div);
+      list.appendChild(div);
     });
   }
 
-  // ── Select a list ────────────────────────────────────────
+  // ── Select list ───────────────────────────────────────────
   function onSelect(id, name) {
     selectedId = id; selectedName = name; selectedCount = null;
-    pickerLabel.className = 'sel';
-    pickerLabel.textContent = name;
-    picker.classList.remove('open');
-    pickerList.querySelectorAll('.picker-item').forEach(el => el.classList.toggle('selected', el.dataset.id === id));
+    const lbl = $('pickerLabel');
+    lbl.className = 'sel'; lbl.textContent = name;
+    $('picker').classList.remove('open');
+    $('pickerList').querySelectorAll('.picker-item').forEach(el =>
+      el.classList.toggle('selected', el.dataset.id === id));
 
-    detailsCard.classList.remove('hidden');
-    detailsListName.textContent = name;
-    countPill.style.display = 'none';
-    detailsBody.innerHTML = '<div class="details-loading"><div class="spinner"></div> טוען פרטי רשימה...</div>';
+    $('detailsCard').classList.remove('hidden');
+    $('detailsListName').textContent = name;
+    $('countPill').style.display = 'none';
+    $('detailsBody').innerHTML = '<div class="details-loading"><div class="spinner"></div> טוען פרטי רשימה...</div>';
     fetchDetails(id);
     checkReady();
   }
@@ -588,123 +621,139 @@
     try {
       const res  = await fetch(`${LIST_DETAILS_URL}?list_id=${listId}`);
       if (!res.ok) throw new Error();
-      const raw  = await res.json();
-
-      // unwrap the "body" envelope that Make sends
+      const raw     = await res.json();
       const payload = raw.body ?? raw;
-      const total   = payload.total ?? payload.count ?? payload.total_count ?? null;
-      const members = payload.data  ?? payload.contacts ?? payload.members ?? [];
+      const allMembers = payload.data ?? payload.contacts ?? payload.members ?? [];
 
-      if (total !== null) {
-        selectedCount = total;
-        countNum.textContent = total.toLocaleString('he-IL');
-        countPill.style.display = 'inline-flex';
+      // ── Filter: only members with a phone number ──
+      const withPhone = allMembers.filter(m =>
+        m.phone && String(m.phone).trim().length > 0 &&
+        !m.blocked && !m.unsubscribed && m.active !== 0
+      );
+
+      const phoneCount = withPhone.length;
+      // If total is provided from API, show it; otherwise use filtered count
+      const apiTotal = payload.total ?? null;
+
+      selectedCount = phoneCount;
+      $('countNum').textContent = phoneCount.toLocaleString('he-IL');
+      $('countPill').style.display = 'inline-flex';
+
+      if (!withPhone.length) {
+        $('detailsBody').innerHTML = `<div class="details-note">📋 אין נמענים עם מספר טלפון ברשימה זו</div>`;
+        checkReady(); return;
       }
 
-      // filter active, non-blocked members for display
-      const active = members.filter(m => !m.blocked && !m.unsubscribed && m.active !== 0);
-      const samples = (active.length ? active : members).slice(0, 8);
-
-      if (!samples.length) {
-        detailsBody.innerHTML = `<div class="details-note">📋 אין דוגמאות זמינות לרשימה זו</div>`;
-        return;
-      }
-
+      const samples = withPhone.slice(0, 8);
       const chips = samples.map(m => {
-        const name  = m.name || [m.first, m.last].filter(Boolean).join(' ') || m.phone || '—';
-        const phone = m.phone ? m.phone.replace(/^972/, '0') : '';
-        const init  = name[0]?.toUpperCase() ?? '?';
+        const name  = m.name || [m.first, m.last].filter(Boolean).join(' ') || m.phone;
+        const phone = String(m.phone).replace(/^972/, '0');
+        const init  = (m.first?.[0] || m.name?.[0] || '?').toUpperCase();
         return `
           <div class="sample-chip">
             <div class="sample-avatar">${init}</div>
-            <div>
+            <div class="sample-info">
               <div class="sample-name">${name}</div>
-              ${phone ? `<div class="sample-phone">${phone}</div>` : ''}
+              <div class="sample-phone">${phone}</div>
             </div>
           </div>`;
       }).join('');
 
-      const more = total > samples.length ? `<div style="font-size:.74rem;color:var(--text-muted);margin-top:10px;">ועוד ${(total - samples.length).toLocaleString('he-IL')} נמענים נוספים…</div>` : '';
-      detailsBody.innerHTML = `<div class="samples-label">דוגמאות מהרשימה</div><div class="samples-grid">${chips}</div>${more}`;
+      const extra = phoneCount > 8
+        ? `<div class="more-label">ועוד ${(phoneCount - 8).toLocaleString('he-IL')} נמענים נוספים עם טלפון…</div>`
+        : '';
+
+      $('detailsBody').innerHTML = `<div class="samples-label">דוגמאות מהרשימה</div><div class="samples-grid">${chips}</div>${extra}`;
     } catch {
-      detailsBody.innerHTML = `<div class="details-note" style="color:var(--danger)">⚠️ לא ניתן לטעון פרטי רשימה</div>`;
+      $('detailsBody').innerHTML = `<div class="details-note" style="color:var(--danger)">⚠️ לא ניתן לטעון פרטי רשימה</div>`;
     }
     checkReady();
   }
 
-  // ── Picker open/close ────────────────────────────────────
-  pickerTrigger.addEventListener('click', () => {
-    picker.classList.toggle('open');
-    if (picker.classList.contains('open')) {
-      pickerSearch.value = '';
+  // ── Picker UI ─────────────────────────────────────────────
+  $('pickerTrigger').addEventListener('click', () => {
+    const p = $('picker');
+    p.classList.toggle('open');
+    $('pickerTrigger').classList.toggle('open', p.classList.contains('open'));
+    if (p.classList.contains('open')) {
+      $('pickerSearch').value = '';
       renderPicker(listsData);
-      setTimeout(() => pickerSearch.focus(), 60);
+      setTimeout(() => $('pickerSearch').focus(), 60);
     }
   });
-  pickerSearch.addEventListener('input', () => {
-    const q = pickerSearch.value.trim().toLowerCase();
+  $('pickerSearch').addEventListener('input', e => {
+    const q = e.target.value.trim().toLowerCase();
     renderPicker(q ? listsData.filter(i => (i.name ?? i).toLowerCase().includes(q)) : listsData);
   });
   document.addEventListener('click', e => {
-    if (!picker.contains(e.target)) picker.classList.remove('open');
+    if (!$('picker').contains(e.target)) {
+      $('picker').classList.remove('open');
+      $('pickerTrigger').classList.remove('open');
+    }
   });
 
-  // ── Message ──────────────────────────────────────────────
-  messageEl.addEventListener('input', () => { charCount.textContent = messageEl.value.length; checkReady(); });
-  function checkReady() { sendBtn.disabled = !(greenOK && selectedId && messageEl.value.trim()); }
+  // ── Message ───────────────────────────────────────────────
+  $('message').addEventListener('input', function() {
+    $('charCount').textContent = this.value.length; checkReady();
+  });
+  function checkReady() {
+    $('sendBtn').disabled = !(greenOK && selectedId && $('message').value.trim());
+  }
 
-  // ── Send flow ────────────────────────────────────────────
-  sendBtn.addEventListener('click', () => {
-    sendError.classList.remove('visible');
-    confirmList.textContent = selectedName;
+  // ── Send ──────────────────────────────────────────────────
+  $('sendBtn').addEventListener('click', () => {
+    $('sendError').classList.remove('visible');
+    $('confirmList').textContent = selectedName;
     if (selectedCount !== null) {
-      confirmCount.textContent = `${selectedCount.toLocaleString('he-IL')} נמענים`;
-      confirmCountRow.style.display = 'flex';
-    } else { confirmCountRow.style.display = 'none'; }
-    confirmMsg.textContent = messageEl.value.trim();
-    overlay.classList.add('open');
-    confirmBtn.focus();
+      $('confirmCount').textContent = `${selectedCount.toLocaleString('he-IL')} נמענים`;
+      $('confirmCountRow').style.display = 'flex';
+    } else { $('confirmCountRow').style.display = 'none'; }
+    $('confirmMsg').textContent = $('message').value.trim();
+    $('overlay').classList.add('open');
+    $('confirmBtn').focus();
   });
 
-  cancelBtn.addEventListener('click', closeModal);
-  overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+  $('cancelBtn').addEventListener('click', closeModal);
+  $('overlay').addEventListener('click', e => { if (e.target === $('overlay')) closeModal(); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
-  function closeModal() { overlay.classList.remove('open'); }
+  function closeModal() { $('overlay').classList.remove('open'); }
 
-  confirmBtn.addEventListener('click', async () => {
-    confirmBtn.disabled = true;
-    confirmBtn.innerHTML = '<div class="spinner" style="border-top-color:#fff;width:15px;height:15px;border-width:2px;"></div> שולח...';
+  $('confirmBtn').addEventListener('click', async () => {
+    const btn = $('confirmBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<div class="spinner" style="border-top-color:#fff;width:15px;height:15px;border-width:2px;"></div> שולח...';
     try {
       const res = await fetch(SEND_URL, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ list_id: selectedId, message: messageEl.value.trim() })
+        body: JSON.stringify({ list_id: selectedId, message: $('message').value.trim() })
       });
       if (!res.ok) throw new Error();
       closeModal();
       showToast('✅ ההודעה נשלחה בהצלחה!', 'success');
-      messageEl.value = ''; charCount.textContent = '0';
+      $('message').value = ''; $('charCount').textContent = '0';
       selectedId = selectedName = selectedCount = null;
-      pickerLabel.className = 'ph'; pickerLabel.textContent = '— בחר רשימה —';
-      detailsCard.classList.add('hidden');
-      pickerList.querySelectorAll('.picker-item').forEach(el => el.classList.remove('selected'));
-      sendBtn.disabled = true;
+      const lbl = $('pickerLabel'); lbl.className = 'ph'; lbl.textContent = '— בחר רשימה —';
+      $('detailsCard').classList.add('hidden');
+      $('pickerList').querySelectorAll('.picker-item').forEach(el => el.classList.remove('selected'));
+      $('sendBtn').disabled = true;
     } catch {
       closeModal();
-      sendError.textContent = 'שליחה נכשלה. אנא נסי שוב.';
-      sendError.classList.add('visible');
+      $('sendError').textContent = 'שליחה נכשלה. אנא נסי שוב.';
+      $('sendError').classList.add('visible');
       showToast('שגיאה בשליחה', 'error');
     } finally {
-      confirmBtn.disabled = false;
-      confirmBtn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> כן, שלח עכשיו';
+      btn.disabled = false;
+      btn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> כן, שלח עכשיו';
     }
   });
 
-  // ── Toast ────────────────────────────────────────────────
+  // ── Toast ─────────────────────────────────────────────────
   let toastT;
-  function showToast(msg, type='success') {
+  function showToast(msg, type = 'success') {
     clearTimeout(toastT);
-    toast.textContent = msg; toast.className = `toast ${type} show`;
-    toastT = setTimeout(() => toast.classList.remove('show'), 3500);
+    const t = $('toast');
+    t.textContent = msg; t.className = `toast ${type} show`;
+    toastT = setTimeout(() => t.classList.remove('show'), 3500);
   }
 
   checkGreenStatus();
