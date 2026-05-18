@@ -350,6 +350,72 @@
     textarea::placeholder { color: var(--text-muted); }
     .char-count { font-size: 0.72rem; color: var(--text-muted); text-align: left; }
 
+    /* ── Variable chips ── */
+    .var-chips {
+      display: flex; align-items: center; gap: 7px; flex-wrap: wrap;
+    }
+    .var-chips-label {
+      font-size: 0.7rem; font-weight: 700; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.6px; white-space: nowrap;
+    }
+    .var-chip {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 4px 11px;
+      background: var(--green-soft); border: 1.5px solid rgba(37,211,102,0.35);
+      border-radius: 20px; cursor: pointer;
+      font-family: 'Heebo', sans-serif; font-size: 0.8rem; font-weight: 700;
+      color: var(--green-dark); transition: all 0.15s;
+    }
+    .var-chip:hover {
+      background: var(--green-mid);
+      border-color: var(--green);
+      transform: translateY(-1px);
+    }
+    .var-chip code {
+      font-family: monospace; font-size: 0.76rem;
+      background: rgba(37,211,102,0.15); border-radius: 4px;
+      padding: 1px 5px; color: var(--green-dark);
+    }
+
+    /* ── Preview block ── */
+    .preview-block {
+      background: var(--surface-b); border: 1.5px dashed var(--border);
+      border-radius: 12px; padding: 13px 15px;
+      display: none; flex-direction: column; gap: 7px;
+    }
+    .preview-block.visible { display: flex; }
+    .preview-block-label {
+      font-size: 0.68rem; font-weight: 700; color: var(--green-dark);
+      text-transform: uppercase; letter-spacing: 0.6px;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .preview-block-name {
+      font-size: 0.74rem; color: var(--text-muted);
+    }
+    .preview-block-text {
+      font-size: 0.9rem; color: var(--text); line-height: 1.65;
+      white-space: pre-wrap; word-break: break-word;
+    }
+    .preview-block-text .highlight {
+      color: var(--green-dark); font-weight: 700;
+    }
+
+    /* Make hint */
+    .make-hint {
+      background: var(--surface-b); border: 1px solid var(--border);
+      border-radius: 10px; padding: 10px 14px;
+      font-size: 0.77rem; color: var(--text-muted); line-height: 1.6;
+      display: none;
+    }
+    .make-hint.visible { display: block; }
+    .make-hint strong { color: var(--text-sub); }
+    .make-hint code {
+      font-family: monospace; font-size: 0.75rem; direction: ltr;
+      display: inline-block;
+      background: var(--surface-c); border-radius: 5px; padding: 2px 7px;
+      color: var(--green-dark);
+    }
+
     /* ── Spinner ── */
     .spinner {
       width: 16px; height: 16px; border-radius: 50%;
@@ -570,10 +636,36 @@
 
   <div class="field">
     <label>תוכן ההודעה</label>
-    <textarea id="message" placeholder="הקלידי את תוכן ההודעה כאן..." maxlength="4096"></textarea>
+
+    <!-- Variable chips -->
+    <div class="var-chips">
+      <span class="var-chips-label">הוסף משתנה:</span>
+      <button class="var-chip" data-var="{{first}}" type="button">
+        + שם פרטי <code>{{first}}</code>
+      </button>
+      <button class="var-chip" data-var="{{last}}" type="button">
+        + שם משפחה <code>{{last}}</code>
+      </button>
+    </div>
+
+    <textarea id="message" placeholder="לדוגמה: שלום {{first}}, יש לנו בשבילך הצעה מיוחדת..." maxlength="4096"></textarea>
+
     <div style="display:flex;justify-content:space-between;align-items:center;margin-top:2px;">
-      <span style="font-size:.7rem;color:var(--text-muted)">תמיכה ב-Emoji ועיצוב ווצאפ (*מודגש*, _נטוי_)</span>
+      <span style="font-size:.7rem;color:var(--text-muted)">תמיכה ב-Emoji, *מודגש*, _נטוי_ ומשתנים</span>
       <span class="char-count"><span id="charCount">0</span> / 4096</span>
+    </div>
+
+    <!-- Live preview -->
+    <div class="preview-block" id="previewBlock">
+      <div class="preview-block-label">👁 תצוגה מקדימה</div>
+      <div class="preview-block-name" id="previewName"></div>
+      <div class="preview-block-text" id="previewText"></div>
+    </div>
+
+    <!-- Make.com hint — shown when vars are used -->
+    <div class="make-hint" id="makeHint">
+      💡 <strong>הגדרה ב-Make.com:</strong> בסנריו השליחה, בשדה ההודעה השתמש ב:<br>
+      <code>replace(replace({{message}}; "{{first}}"; {{contact.first}}); "{{last}}"; {{contact.last}})</code>
     </div>
   </div>
 
@@ -632,6 +724,7 @@
 
   let greenOK = false, selectedId = null, selectedName = null, selectedCount = null;
   let listsData = [];
+  let sampleMember = null;
 
   const $ = id => document.getElementById(id);
 
@@ -722,6 +815,41 @@
     }
   });
 
+  // ── Variable chips ───────────────────────────────────────
+  function insertAtCursor(el, text) {
+    const start = el.selectionStart;
+    const end   = el.selectionEnd;
+    el.value = el.value.slice(0, start) + text + el.value.slice(end);
+    el.selectionStart = el.selectionEnd = start + text.length;
+    el.focus();
+    el.dispatchEvent(new Event('input'));
+  }
+
+  document.querySelectorAll('.var-chip').forEach(chip => {
+    chip.addEventListener('click', () => insertAtCursor($('message'), chip.dataset.var));
+  });
+
+  // ── Live preview ─────────────────────────────────────────
+  function updatePreview() {
+    const msg     = $('message').value;
+    const hasVar  = msg.includes('{{first}}') || msg.includes('{{last}}');
+    const block   = $('previewBlock');
+    const hint    = $('makeHint');
+
+    block.classList.toggle('visible', !!(hasVar && sampleMember));
+    hint.classList.toggle('visible',  hasVar);
+
+    if (!hasVar || !sampleMember) return;
+
+    const rendered = msg
+      .replace(/\{\{first\}\}/g, sampleMember.first || '')
+      .replace(/\{\{last\}\}/g,  sampleMember.last  || '');
+
+    $('previewText').textContent = rendered;
+    $('previewName').textContent =
+      `לדוגמה עבור: ${sampleMember.name || [sampleMember.first, sampleMember.last].filter(Boolean).join(' ')}`;
+  }
+
   // ── GREEN API status ──────────────────────────────────────
   async function checkGreenStatus() {
     const bar = $('statusBar');
@@ -798,6 +926,7 @@
   // ── Select list ───────────────────────────────────────────
   function onSelect(id, name) {
     selectedId = id; selectedName = name; selectedCount = null;
+    sampleMember = null; updatePreview();
     const lbl = $('pickerLabel');
     lbl.className = 'sel'; lbl.textContent = name;
     $('picker').classList.remove('open');
@@ -826,6 +955,8 @@
         !m.blocked && !m.unsubscribed && m.active !== 0
       );
 
+      sampleMember = withPhone[0] ?? null;
+      updatePreview();
       const phoneCount = withPhone.length;
       // If total is provided from API, show it; otherwise use filtered count
       const apiTotal = payload.total ?? null;
@@ -889,7 +1020,9 @@
 
   // ── Message ───────────────────────────────────────────────
   $('message').addEventListener('input', function() {
-    $('charCount').textContent = this.value.length; checkReady();
+    $('charCount').textContent = this.value.length;
+    updatePreview();
+    checkReady();
   });
   function checkReady() {
     $('sendBtn').disabled = !(greenOK && selectedId && $('message').value.trim());
