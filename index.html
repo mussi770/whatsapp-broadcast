@@ -74,17 +74,99 @@
       transition: background 0.3s, color 0.3s;
     }
 
-    /* ── Theme toggle ── */
-    .theme-toggle {
-      position: fixed; top: 16px; left: 16px; z-index: 300;
+    /* ── Top-right control bar ── */
+    .top-controls {
+      position: fixed; top: 14px; left: 14px; z-index: 300;
+      display: flex; gap: 8px; align-items: center;
+    }
+    .ctrl-btn {
       width: 40px; height: 40px; border-radius: 50%;
       background: var(--surface); border: 1px solid var(--border);
       box-shadow: var(--shadow-sm);
-      cursor: pointer; font-size: 1.1rem;
+      cursor: pointer; font-size: 1.05rem;
       display: grid; place-items: center;
       transition: all 0.2s;
     }
-    .theme-toggle:hover { transform: scale(1.1); box-shadow: var(--shadow); }
+    .ctrl-btn:hover { transform: scale(1.08); box-shadow: var(--shadow); }
+
+    /* ── Settings drawer ── */
+    .settings-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.35);
+      backdrop-filter: blur(3px); z-index: 400;
+      display: none; align-items: flex-start; justify-content: center;
+      padding-top: 70px;
+    }
+    .settings-overlay.open { display: flex; }
+
+    .settings-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 24px 22px;
+      width: 92%; max-width: 480px;
+      box-shadow: var(--shadow-lg);
+      display: flex; flex-direction: column; gap: 20px;
+      animation: slideDown 0.22s cubic-bezier(0.34,1.4,0.64,1);
+    }
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .settings-head {
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .settings-head h3 { font-size: 1rem; font-weight: 800; color: var(--text); }
+    .settings-head p  { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+    .settings-close {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--surface-c); border: none; cursor: pointer;
+      font-size: 0.9rem; color: var(--text-muted);
+      display: grid; place-items: center; transition: background 0.15s;
+    }
+    .settings-close:hover { background: var(--border); color: var(--text); }
+
+    .settings-field { display: flex; flex-direction: column; gap: 6px; }
+    .settings-field label {
+      font-size: 0.7rem; font-weight: 700; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.7px;
+    }
+    .settings-field input {
+      width: 100%; background: var(--surface-b);
+      border: 1.5px solid var(--border); border-radius: 10px;
+      padding: 11px 14px; color: var(--text);
+      font-family: 'Heebo', monospace; font-size: 0.88rem; outline: none;
+      transition: border-color 0.2s, background 0.3s;
+      direction: ltr; text-align: left;
+    }
+    .settings-field input:focus { border-color: var(--green); }
+    .settings-field .hint { font-size: 0.72rem; color: var(--text-muted); }
+
+    .settings-actions { display: flex; gap: 10px; }
+    .btn-settings-save {
+      flex: 1; padding: 11px;
+      background: linear-gradient(135deg, #25d366, #1aa34a);
+      border: none; border-radius: 10px; color: #fff;
+      font-family: 'Heebo', sans-serif; font-size: 0.9rem; font-weight: 700;
+      cursor: pointer; transition: opacity 0.15s, transform 0.15s;
+      box-shadow: 0 3px 12px rgba(37,211,102,0.28);
+    }
+    .btn-settings-save:hover { opacity: 0.88; transform: translateY(-1px); }
+    .btn-settings-reset {
+      padding: 11px 16px;
+      background: var(--surface-b); border: 1.5px solid var(--border);
+      border-radius: 10px; color: var(--text-muted);
+      font-family: 'Heebo', sans-serif; font-size: 0.9rem; font-weight: 600;
+      cursor: pointer; transition: all 0.15s; white-space: nowrap;
+    }
+    .btn-settings-reset:hover { background: var(--surface-c); color: var(--text); }
+
+    .settings-status {
+      padding: 9px 13px; border-radius: 8px;
+      font-size: 0.8rem; font-weight: 500; text-align: center;
+      display: none;
+    }
+    .settings-status.ok  { background: var(--green-soft); color: var(--green-dark); display: block; }
+    .settings-status.err { background: var(--danger-soft); color: var(--danger);    display: block; }
 
     /* ── Header ── */
     header {
@@ -399,8 +481,43 @@
 </head>
 <body>
 
-<!-- Theme toggle -->
-<button class="theme-toggle" id="themeToggle" title="החלף תצוגה" aria-label="החלף בין תצוגה כהה לבהירה">🌙</button>
+<!-- Top controls -->
+<div class="top-controls">
+  <button class="ctrl-btn" id="themeToggle" title="החלף תצוגה" aria-label="החלף תצוגה">🌙</button>
+  <button class="ctrl-btn" id="settingsBtn" title="הגדרות" aria-label="הגדרות">⚙️</button>
+</div>
+
+<!-- Settings drawer -->
+<div class="settings-overlay" id="settingsOverlay">
+  <div class="settings-panel" id="settingsPanel" role="dialog" aria-labelledby="settingsTitle">
+    <div class="settings-head">
+      <div>
+        <h3 id="settingsTitle">⚙️ הגדרות חיבור</h3>
+        <p>GREEN API — idInstance ו-apiTokenInstance</p>
+      </div>
+      <button class="settings-close" id="settingsClose">✕</button>
+    </div>
+
+    <div class="settings-field">
+      <label>idInstance</label>
+      <input type="text" id="cfgId" placeholder="לדוגמה: 1101869854" autocomplete="off" spellcheck="false" />
+      <span class="hint">המספר המזהה של ה-Instance שלך ב-GREEN API</span>
+    </div>
+
+    <div class="settings-field">
+      <label>apiTokenInstance</label>
+      <input type="text" id="cfgToken" placeholder="הדבק כאן את הטוקן" autocomplete="off" spellcheck="false" />
+      <span class="hint">הטוקן הסודי — אל תשתף אותו</span>
+    </div>
+
+    <div class="settings-status" id="settingsStatus"></div>
+
+    <div class="settings-actions">
+      <button class="btn-settings-reset" id="settingsReset">↺ ברירת מחדל</button>
+      <button class="btn-settings-save" id="settingsSave">✓ שמור ובדוק חיבור</button>
+    </div>
+  </div>
+</div>
 
 <header>
   <div class="logo-wrap">
@@ -505,9 +622,13 @@
   const GET_LISTS_URL    = 'https://hook.eu1.make.com/7kxf0rwpufs11u9w7vrev333d5pqgv57';
   const SEND_URL         = 'https://hook.eu1.make.com/8r0p1dqtlqul4i3rexil6o8s0uxkx8iu';
   const LIST_DETAILS_URL = 'https://hook.eu1.make.com/t8acjxcafqloo6g3la7aauhmvpwod1lc';
-  const GREEN_ID         = '1101869854';
-  const GREEN_TOKEN      = '98fa934eede54e25a65c9d91885d356eb88db0ef7fd245398a';
-  const GREEN_QR         = `https://qr.green-api.com/waInstance${GREEN_ID}/${GREEN_TOKEN}`;
+  const DEFAULT_ID    = '1101869854';
+  const DEFAULT_TOKEN = '98fa934eede54e25a65c9d91885d356eb88db0ef7fd245398a';
+
+  // ── Load saved credentials (or defaults) ─────────────────
+  let GREEN_ID    = localStorage.getItem('green_id')    || DEFAULT_ID;
+  let GREEN_TOKEN = localStorage.getItem('green_token') || DEFAULT_TOKEN;
+  let GREEN_QR    = `https://qr.green-api.com/waInstance${GREEN_ID}/${GREEN_TOKEN}`;
 
   let greenOK = false, selectedId = null, selectedName = null, selectedCount = null;
   let listsData = [];
@@ -515,17 +636,90 @@
   const $ = id => document.getElementById(id);
 
   // ── Theme toggle ──────────────────────────────────────────
-  const html         = document.documentElement;
-  const themeToggle  = $('themeToggle');
-  const saved        = localStorage.getItem('theme') || 'light';
-  html.dataset.theme = saved;
-  themeToggle.textContent = saved === 'dark' ? '☀️' : '🌙';
+  const html        = document.documentElement;
+  const savedTheme  = localStorage.getItem('theme') || 'light';
+  html.dataset.theme = savedTheme;
+  $('themeToggle').textContent = savedTheme === 'dark' ? '☀️' : '🌙';
 
-  themeToggle.addEventListener('click', () => {
+  $('themeToggle').addEventListener('click', () => {
     const next = html.dataset.theme === 'dark' ? 'light' : 'dark';
     html.dataset.theme = next;
-    themeToggle.textContent = next === 'dark' ? '☀️' : '🌙';
+    $('themeToggle').textContent = next === 'dark' ? '☀️' : '🌙';
     localStorage.setItem('theme', next);
+  });
+
+  // ── Settings panel ────────────────────────────────────────
+  function openSettings() {
+    $('cfgId').value    = GREEN_ID;
+    $('cfgToken').value = GREEN_TOKEN;
+    $('settingsStatus').className = 'settings-status';
+    $('settingsStatus').textContent = '';
+    $('settingsOverlay').classList.add('open');
+    $('cfgId').focus();
+  }
+  function closeSettings() {
+    $('settingsOverlay').classList.remove('open');
+  }
+
+  $('settingsBtn').addEventListener('click', openSettings);
+  $('settingsClose').addEventListener('click', closeSettings);
+  $('settingsOverlay').addEventListener('click', e => {
+    if (e.target === $('settingsOverlay')) closeSettings();
+  });
+
+  $('settingsReset').addEventListener('click', () => {
+    $('cfgId').value    = DEFAULT_ID;
+    $('cfgToken').value = DEFAULT_TOKEN;
+    $('settingsStatus').className = 'settings-status';
+  });
+
+  $('settingsSave').addEventListener('click', async () => {
+    const newId    = $('cfgId').value.trim();
+    const newToken = $('cfgToken').value.trim();
+    if (!newId || !newToken) {
+      $('settingsStatus').className = 'settings-status err';
+      $('settingsStatus').textContent = '⚠️ יש למלא את שני השדות';
+      return;
+    }
+
+    const btn = $('settingsSave');
+    btn.disabled = true;
+    btn.textContent = 'בודק...';
+    $('settingsStatus').className = 'settings-status';
+
+    try {
+      const res = await fetch(
+        `https://api.green-api.com/waInstance${newId}/getStateInstance/${newToken}`,
+        { cache: 'no-store' }
+      );
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const { stateInstance } = await res.json();
+
+      // Save to memory + localStorage
+      GREEN_ID    = newId;
+      GREEN_TOKEN = newToken;
+      GREEN_QR    = `https://qr.green-api.com/waInstance${GREEN_ID}/${GREEN_TOKEN}`;
+      localStorage.setItem('green_id',    GREEN_ID);
+      localStorage.setItem('green_token', GREEN_TOKEN);
+
+      const labels = {
+        authorized:    '✅ מחובר ופעיל — ההגדרות נשמרו',
+        notAuthorized: '📱 נשמר — אך ווצאפ לא מחובר, יש לסרוק ברקוד',
+        blocked:       '💳 נשמר — החשבון חסום, נדרש תשלום',
+        sleepMode:     '💤 נשמר — Instance במצב שינה',
+      };
+      $('settingsStatus').className = stateInstance === 'authorized' ? 'settings-status ok' : 'settings-status err';
+      $('settingsStatus').textContent = labels[stateInstance] || `⚠️ סטטוס: ${stateInstance}`;
+
+      // Refresh the main status bar
+      checkGreenStatus();
+    } catch {
+      $('settingsStatus').className = 'settings-status err';
+      $('settingsStatus').textContent = '❌ לא ניתן להתחבר — בדקי את ה-ID והטוקן';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '✓ שמור ובדוק חיבור';
+    }
   });
 
   // ── GREEN API status ──────────────────────────────────────
@@ -540,6 +734,7 @@
       );
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const { stateInstance: s } = await res.json();
+      const qr = `https://qr.green-api.com/waInstance${GREEN_ID}/${GREEN_TOKEN}`;
 
       if (s === 'authorized') {
         greenOK = true;
@@ -547,7 +742,7 @@
         bar.innerHTML = `<div class="status-icon">✅</div><div class="status-body"><strong>GREEN API מחובר ופעיל</strong>ניתן לשלוח הודעות</div>`;
       } else if (s === 'notAuthorized') {
         bar.className = 'status-bar qr';
-        bar.innerHTML = `<div class="status-icon">📱</div><div class="status-body"><strong>ווצאפ לא מחובר</strong>יש לסרוק ברקוד כדי לחבר את החשבון<br><a class="btn-action" href="${GREEN_QR}" target="_blank">📷 פתח דף סריקת ברקוד</a></div>`;
+        bar.innerHTML = `<div class="status-icon">📱</div><div class="status-body"><strong>ווצאפ לא מחובר</strong>יש לסרוק ברקוד כדי לחבר את החשבון<br><a class="btn-action" href="${qr}" target="_blank">📷 פתח דף סריקת ברקוד</a></div>`;
       } else if (s === 'blocked') {
         bar.className = 'status-bar pay';
         bar.innerHTML = `<div class="status-icon">💳</div><div class="status-body"><strong>החשבון חסום — נדרש תשלום</strong>מנוי GREEN API פג תוקפו.</div>`;
