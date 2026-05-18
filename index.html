@@ -400,21 +400,6 @@
       color: var(--green-dark); font-weight: 700;
     }
 
-    /* Make hint */
-    .make-hint {
-      background: var(--surface-b); border: 1px solid var(--border);
-      border-radius: 10px; padding: 10px 14px;
-      font-size: 0.77rem; color: var(--text-muted); line-height: 1.6;
-      display: none;
-    }
-    .make-hint.visible { display: block; }
-    .make-hint strong { color: var(--text-sub); }
-    .make-hint code {
-      font-family: monospace; font-size: 0.75rem; direction: ltr;
-      display: inline-block;
-      background: var(--surface-c); border-radius: 5px; padding: 2px 7px;
-      color: var(--green-dark);
-    }
 
     /* ── Spinner ── */
     .spinner {
@@ -662,11 +647,6 @@
       <div class="preview-block-text" id="previewText"></div>
     </div>
 
-    <!-- Make.com hint — shown when vars are used -->
-    <div class="make-hint" id="makeHint">
-      💡 <strong>הגדרה ב-Make.com:</strong> בסנריו השליחה, בשדה ההודעה השתמש ב:<br>
-      <code>replace(replace({{message}}; "[[first]]"; {{contact.first}}); "[[last]]"; {{contact.last}})</code>
-    </div>
   </div>
 
   <div id="sendError" class="err-inline"></div>
@@ -834,10 +814,7 @@
     const msg     = $('message').value;
     const hasVar  = msg.includes('[[first]]') || msg.includes('[[last]]');
     const block   = $('previewBlock');
-    const hint    = $('makeHint');
-
     block.classList.toggle('visible', !!(hasVar && sampleMember));
-    hint.classList.toggle('visible',  hasVar);
 
     if (!hasVar || !sampleMember) return;
 
