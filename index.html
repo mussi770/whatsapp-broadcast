@@ -379,6 +379,29 @@
     .fmt-btn.mono   { font-family: monospace; font-size: 0.82rem; }
     .fmt-btn.quote  { font-size: 1rem; }
 
+    /* emoji picker */
+    .emoji-wrap { position: relative; }
+    .emoji-btn  { font-size: 1rem; }
+    .emoji-panel {
+      display: none;
+      position: absolute; top: calc(100% + 6px); right: 0;
+      background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: 14px; padding: 10px;
+      box-shadow: var(--shadow-lg); z-index: 60;
+      width: 236px;
+    }
+    .emoji-panel.open { display: block; }
+    .emoji-grid {
+      display: grid; grid-template-columns: repeat(8, 1fr); gap: 2px;
+    }
+    .emoji-item {
+      width: 28px; height: 28px; border-radius: 6px;
+      background: none; border: none; cursor: pointer;
+      font-size: 1.1rem; display: grid; place-items: center;
+      transition: background 0.1s; line-height: 1;
+    }
+    .emoji-item:hover { background: var(--surface-c); }
+
     /* ── Variable chips ── */
     .var-chips {
       display: flex; align-items: center; gap: 7px; flex-wrap: wrap;
@@ -680,6 +703,13 @@
       <button class="fmt-btn mono"   data-fmt="mono"   type="button" title="קוד (```mono```)">M</button>
       <div class="fmt-sep"></div>
       <button class="fmt-btn quote"  data-fmt="quote"  type="button" title='ציטוט ("> ")'>❝</button>
+      <div class="fmt-sep"></div>
+      <div class="emoji-wrap">
+        <button class="fmt-btn emoji-btn" id="emojiBtn" type="button" title="הוסף אימוג'י">😊</button>
+        <div class="emoji-panel" id="emojiPanel">
+          <div class="emoji-grid" id="emojiGrid"></div>
+        </div>
+      </div>
     </div>
 
     <textarea id="message" placeholder="לדוגמה: שלום [[first]], יש לנו בשבילך הצעה מיוחדת..." maxlength="4096"></textarea>
@@ -900,6 +930,44 @@
       .replace(/^&gt; (.+)$/gm,    '<span class="wa-quote">$1</span>')
       .replace(/\n/g, '<br>');
   }
+
+  // ── Emoji picker ─────────────────────────────────────────
+  const EMOJIS = [
+    '😊','😂','😍','🥰','😎','🤩','😁','🤗',
+    '❤️','🧡','💛','💚','💙','💜','🖤','🤍',
+    '👍','👏','🙌','🙏','💪','🤝','✌️','👑',
+    '🔥','✨','💥','⚡','🌟','⭐','💯','🎯',
+    '🎉','🎁','🎊','🏆','💎','💰','🚀','📢',
+    '✅','❌','📌','💡','📱','💬','⏰','📅',
+    '🌹','🌺','🌸','🌈','🌙','☀️','🍀','🦋',
+  ];
+
+  const emojiGrid  = $('emojiGrid');
+  const emojiPanel = $('emojiPanel');
+  const emojiBtn   = $('emojiBtn');
+
+  EMOJIS.forEach(em => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'emoji-item';
+    btn.textContent = em;
+    btn.addEventListener('click', () => {
+      insertAtCursor($('message'), em);
+      emojiPanel.classList.remove('open');
+    });
+    emojiGrid.appendChild(btn);
+  });
+
+  emojiBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    emojiPanel.classList.toggle('open');
+  });
+
+  document.addEventListener('click', e => {
+    if (!emojiPanel.contains(e.target) && e.target !== emojiBtn) {
+      emojiPanel.classList.remove('open');
+    }
+  });
 
   // ── Variable chips ───────────────────────────────────────
   function insertAtCursor(el, text) {
