@@ -3,25 +3,31 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>שליחת ווצאפ בתפוצה</title>
+  <title>שליחת ווצאפ בתפוצה | מוסי שיינר</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:          #0b0f12;
-      --surface:     #141a1f;
-      --surface2:    #1c2530;
-      --border:      #243040;
-      --green:       #25d366;
-      --green-dark:  #1ebe5a;
-      --green-glow:  rgba(37,211,102,0.18);
-      --text:        #e8edf2;
-      --text-muted:  #7a8fa6;
-      --danger:      #e55353;
-      --radius:      14px;
+      --bg:           #080c10;
+      --surface:      rgba(255,255,255,0.04);
+      --surface-b:    rgba(255,255,255,0.07);
+      --border:       rgba(255,255,255,0.09);
+      --border-focus: rgba(37,211,102,0.5);
+      --green:        #25d366;
+      --green-dim:    #1db954;
+      --green-glow:   rgba(37,211,102,0.22);
+      --green-glow2:  rgba(37,211,102,0.08);
+      --text:         #eef2f6;
+      --text-sub:     #8fa3b8;
+      --text-muted:   #4e6175;
+      --danger:       #ff5b5b;
+      --warn:         #f59e0b;
+      --info:         #3b82f6;
+      --radius:       18px;
+      --radius-sm:    12px;
     }
 
     body {
@@ -32,96 +38,187 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 32px 16px 64px;
+      padding: 40px 16px 80px;
+      background-image:
+        radial-gradient(ellipse 60% 40% at 50% -10%, rgba(37,211,102,0.1) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 30% at 80% 80%, rgba(37,211,102,0.04) 0%, transparent 60%);
     }
 
     /* ── Header ── */
     header {
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 14px;
-      margin-bottom: 36px;
+      gap: 6px;
+      margin-bottom: 40px;
+      text-align: center;
     }
-    .logo {
-      width: 52px; height: 52px;
-      background: var(--green);
-      border-radius: 50%;
+    .logo-wrap {
+      width: 64px; height: 64px;
+      background: linear-gradient(145deg, #25d366, #1aa34a);
+      border-radius: 22px;
       display: grid; place-items: center;
-      box-shadow: 0 0 24px var(--green-glow);
+      box-shadow: 0 0 40px var(--green-glow), 0 8px 24px rgba(0,0,0,0.4);
+      margin-bottom: 10px;
     }
-    .logo svg { width: 30px; height: 30px; fill: #fff; }
-    header h1 { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.4px; }
-    header p  { font-size: 0.82rem; color: var(--text-muted); margin-top: 2px; }
+    .logo-wrap svg { width: 34px; height: 34px; fill: #fff; }
+    header h1 {
+      font-size: 1.75rem; font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #fff 30%, #25d366);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    header .sub { font-size: 0.82rem; color: var(--text-muted); }
+
+    /* ── Status banner ── */
+    .status-bar {
+      width: 100%; max-width: 560px;
+      border-radius: var(--radius-sm);
+      padding: 14px 18px;
+      margin-bottom: 18px;
+      display: flex; align-items: flex-start; gap: 13px;
+      border: 1px solid transparent;
+      font-size: 0.88rem;
+      line-height: 1.5;
+      transition: all 0.3s;
+    }
+    .status-bar.loading {
+      background: var(--surface);
+      border-color: var(--border);
+      color: var(--text-sub);
+    }
+    .status-bar.ok {
+      background: rgba(37,211,102,0.07);
+      border-color: rgba(37,211,102,0.25);
+      color: #4ade80;
+    }
+    .status-bar.qr {
+      background: rgba(59,130,246,0.08);
+      border-color: rgba(59,130,246,0.3);
+      color: #93c5fd;
+    }
+    .status-bar.pay {
+      background: rgba(245,158,11,0.08);
+      border-color: rgba(245,158,11,0.3);
+      color: #fcd34d;
+    }
+    .status-bar.err {
+      background: rgba(255,91,91,0.08);
+      border-color: rgba(255,91,91,0.3);
+      color: #fca5a5;
+    }
+    .status-icon { font-size: 1.15rem; flex-shrink: 0; margin-top: 1px; }
+    .status-body { flex: 1; }
+    .status-body strong { display: block; font-weight: 600; margin-bottom: 3px; }
+    .btn-qr {
+      display: inline-flex; align-items: center; gap: 6px;
+      margin-top: 8px;
+      padding: 7px 14px;
+      background: rgba(59,130,246,0.15);
+      border: 1px solid rgba(59,130,246,0.4);
+      border-radius: 8px;
+      color: #93c5fd;
+      font-family: 'Heebo', sans-serif;
+      font-size: 0.82rem; font-weight: 600;
+      cursor: pointer; text-decoration: none;
+      transition: background 0.2s;
+    }
+    .btn-qr:hover { background: rgba(59,130,246,0.25); }
 
     /* ── Card ── */
     .card {
       width: 100%; max-width: 560px;
       background: var(--surface);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       border: 1px solid var(--border);
       border-radius: var(--radius);
       padding: 32px 28px;
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
+      display: flex; flex-direction: column; gap: 26px;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.35);
     }
 
     /* ── Field ── */
-    .field { display: flex; flex-direction: column; gap: 8px; }
+    .field { display: flex; flex-direction: column; gap: 9px; }
     label {
-      font-size: 0.82rem;
-      font-weight: 600;
+      font-size: 0.75rem; font-weight: 700;
       color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
+      text-transform: uppercase; letter-spacing: 0.8px;
     }
 
-    select, textarea {
-      background: var(--surface2);
+    /* Select */
+    .select-wrap { position: relative; }
+    select {
+      width: 100%;
+      background: var(--surface-b);
       border: 1px solid var(--border);
-      border-radius: 10px;
+      border-radius: var(--radius-sm);
       color: var(--text);
       font-family: 'Heebo', sans-serif;
       font-size: 0.97rem;
-      padding: 12px 16px;
+      padding: 13px 16px 13px 44px;
       outline: none;
+      cursor: pointer;
+      appearance: none; -webkit-appearance: none;
       transition: border-color 0.2s, box-shadow 0.2s;
-      width: 100%;
     }
-    select:focus, textarea:focus {
-      border-color: var(--green);
-      box-shadow: 0 0 0 3px var(--green-glow);
+    select:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px var(--green-glow2);
     }
-    select { cursor: pointer; appearance: none; -webkit-appearance: none; }
-    .select-wrap { position: relative; }
     .select-wrap::after {
       content: '▾';
       position: absolute;
-      left: 14px;
-      top: 50%; transform: translateY(-50%);
+      left: 16px; top: 50%;
+      transform: translateY(-50%);
       color: var(--text-muted);
       pointer-events: none;
-      font-size: 1rem;
     }
+    .select-meta {
+      display: flex; align-items: center; gap: 8px;
+      margin-top: 6px;
+      font-size: 0.78rem; color: var(--text-muted);
+    }
+    .badge-count {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: var(--surface-b);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2px 10px;
+      font-size: 0.75rem; font-weight: 600;
+      color: var(--green);
+    }
+
+    /* Textarea */
     textarea {
+      width: 100%;
+      background: var(--surface-b);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-family: 'Heebo', sans-serif;
+      font-size: 0.97rem;
+      padding: 14px 16px;
+      outline: none;
       resize: vertical;
-      min-height: 140px;
-      line-height: 1.6;
+      min-height: 150px;
+      line-height: 1.65;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    textarea:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px var(--green-glow2);
     }
     textarea::placeholder { color: var(--text-muted); }
+    .char-count { font-size: 0.73rem; color: var(--text-muted); text-align: left; }
 
-    .char-count {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      text-align: left;
-    }
-
-    /* ── Loading state ── */
+    /* Loading row */
     .loading-row {
       display: flex; align-items: center; gap: 10px;
-      font-size: 0.88rem; color: var(--text-muted);
+      font-size: 0.88rem; color: var(--text-sub);
     }
     .spinner {
-      width: 18px; height: 18px;
+      width: 17px; height: 17px;
       border: 2px solid var(--border);
       border-top-color: var(--green);
       border-radius: 50%;
@@ -130,156 +227,185 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ── Error banner ── */
-    .error-banner {
-      background: rgba(229,83,83,0.12);
-      border: 1px solid rgba(229,83,83,0.35);
-      border-radius: 10px;
-      padding: 12px 16px;
-      font-size: 0.88rem;
-      color: var(--danger);
+    /* Error inline */
+    .err-inline {
+      background: rgba(255,91,91,0.08);
+      border: 1px solid rgba(255,91,91,0.25);
+      border-radius: var(--radius-sm);
+      padding: 11px 16px;
+      font-size: 0.85rem; color: #fca5a5;
       display: none;
     }
-    .error-banner.visible { display: block; }
+    .err-inline.visible { display: block; }
 
     /* ── Send button ── */
     .btn-send {
-      background: var(--green);
+      width: 100%;
+      background: linear-gradient(135deg, #25d366, #1aa34a);
+      border: none; border-radius: var(--radius-sm);
+      padding: 15px 24px;
       color: #fff;
-      border: none;
-      border-radius: 10px;
-      padding: 14px 28px;
       font-family: 'Heebo', sans-serif;
-      font-size: 1rem;
-      font-weight: 600;
+      font-size: 1rem; font-weight: 700;
       cursor: pointer;
       display: flex; align-items: center; justify-content: center; gap: 10px;
-      transition: background 0.2s, box-shadow 0.2s, opacity 0.2s;
-      width: 100%;
+      transition: opacity 0.2s, box-shadow 0.2s, transform 0.15s;
+      box-shadow: 0 4px 20px rgba(37,211,102,0.28);
+      letter-spacing: 0.2px;
     }
     .btn-send:hover:not(:disabled) {
-      background: var(--green-dark);
-      box-shadow: 0 4px 20px var(--green-glow);
+      box-shadow: 0 6px 28px rgba(37,211,102,0.42);
+      transform: translateY(-1px);
     }
-    .btn-send:disabled { opacity: 0.45; cursor: not-allowed; }
-    .btn-send svg { width: 20px; height: 20px; fill: #fff; flex-shrink: 0; }
+    .btn-send:active:not(:disabled) { transform: translateY(0); }
+    .btn-send:disabled { opacity: 0.35; cursor: not-allowed; box-shadow: none; transform: none; }
+    .btn-send svg { width: 19px; height: 19px; fill: currentColor; flex-shrink: 0; }
 
-    /* ── Modal overlay ── */
+    /* ── Modal ── */
     .overlay {
       position: fixed; inset: 0;
-      background: rgba(0,0,0,0.65);
-      backdrop-filter: blur(4px);
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(6px);
       display: none; place-items: center;
-      z-index: 100;
+      z-index: 100; padding: 16px;
     }
     .overlay.open { display: grid; }
-
     .modal {
-      background: var(--surface);
+      background: #111820;
       border: 1px solid var(--border);
       border-radius: var(--radius);
       padding: 32px 28px;
-      width: 92%; max-width: 420px;
+      width: 100%; max-width: 430px;
       display: flex; flex-direction: column; gap: 20px;
-      animation: pop 0.18s ease;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.6);
+      animation: pop 0.2s cubic-bezier(0.34,1.56,0.64,1);
     }
     @keyframes pop {
-      from { transform: scale(0.94); opacity: 0; }
-      to   { transform: scale(1);    opacity: 1; }
+      from { transform: scale(0.92) translateY(12px); opacity: 0; }
+      to   { transform: scale(1) translateY(0); opacity: 1; }
     }
-    .modal h2 { font-size: 1.15rem; font-weight: 700; }
+    .modal-head { display: flex; align-items: center; gap: 12px; }
+    .modal-head .icon {
+      width: 42px; height: 42px; border-radius: 12px;
+      background: var(--green-glow2);
+      border: 1px solid rgba(37,211,102,0.2);
+      display: grid; place-items: center;
+      flex-shrink: 0;
+    }
+    .modal-head .icon svg { width: 20px; height: 20px; fill: var(--green); }
+    .modal-head h2 { font-size: 1.1rem; font-weight: 700; }
+    .modal-head p { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
     .modal-detail {
-      background: var(--surface2);
-      border-radius: 10px;
-      padding: 14px 16px;
-      font-size: 0.9rem;
-      line-height: 1.6;
-      color: var(--text-muted);
-    }
-    .modal-detail strong { color: var(--text); font-weight: 600; }
-    .modal-detail .preview-msg {
-      margin-top: 10px;
-      padding: 10px 12px;
-      background: var(--bg);
-      border-radius: 8px;
-      font-size: 0.88rem;
-      white-space: pre-wrap;
-      word-break: break-word;
-      color: var(--text);
+      background: rgba(255,255,255,0.03);
       border: 1px solid var(--border);
-      max-height: 120px;
-      overflow-y: auto;
+      border-radius: var(--radius-sm);
+      padding: 15px 16px;
+      display: flex; flex-direction: column; gap: 10px;
     }
-    .modal-actions { display: flex; gap: 12px; }
+    .detail-row { font-size: 0.85rem; display: flex; gap: 6px; }
+    .detail-row span:first-child { color: var(--text-muted); flex-shrink: 0; }
+    .detail-row span:last-child { color: var(--text); font-weight: 500; }
+    .preview-msg {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 13px;
+      font-size: 0.85rem;
+      white-space: pre-wrap; word-break: break-word;
+      color: var(--text-sub);
+      max-height: 110px; overflow-y: auto;
+      line-height: 1.6;
+    }
+    .modal-warn {
+      font-size: 0.78rem; color: var(--text-muted);
+      display: flex; align-items: flex-start; gap: 6px;
+    }
+    .modal-actions { display: flex; gap: 10px; }
     .btn-cancel {
       flex: 1; padding: 12px;
       background: transparent;
       border: 1px solid var(--border);
-      border-radius: 10px;
-      color: var(--text-muted);
+      border-radius: var(--radius-sm);
+      color: var(--text-sub);
       font-family: 'Heebo', sans-serif;
-      font-size: 0.95rem; font-weight: 500;
-      cursor: pointer;
-      transition: border-color 0.2s, color 0.2s;
+      font-size: 0.92rem; font-weight: 500;
+      cursor: pointer; transition: all 0.2s;
     }
-    .btn-cancel:hover { border-color: var(--text-muted); color: var(--text); }
+    .btn-cancel:hover { border-color: rgba(255,255,255,0.2); color: var(--text); }
     .btn-confirm {
       flex: 2; padding: 12px;
-      background: var(--green);
-      border: none;
-      border-radius: 10px;
+      background: linear-gradient(135deg, #25d366, #1aa34a);
+      border: none; border-radius: var(--radius-sm);
       color: #fff;
       font-family: 'Heebo', sans-serif;
-      font-size: 0.95rem; font-weight: 600;
+      font-size: 0.92rem; font-weight: 700;
       cursor: pointer;
       display: flex; align-items: center; justify-content: center; gap: 8px;
-      transition: background 0.2s;
+      transition: opacity 0.2s, transform 0.15s;
     }
-    .btn-confirm:hover:not(:disabled) { background: var(--green-dark); }
-    .btn-confirm:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-confirm:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
+    .btn-confirm:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
     /* ── Toast ── */
     .toast {
-      position: fixed;
-      bottom: 28px; left: 50%; transform: translateX(-50%) translateY(80px);
-      background: var(--surface2);
+      position: fixed; bottom: 28px; left: 50%;
+      transform: translateX(-50%) translateY(90px);
+      background: #1a222c;
       border: 1px solid var(--border);
       border-radius: 40px;
       padding: 11px 22px;
-      font-size: 0.9rem; font-weight: 500;
+      font-size: 0.88rem; font-weight: 500;
       display: flex; align-items: center; gap: 8px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-      transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), opacity 0.35s;
-      opacity: 0; z-index: 200;
-      white-space: nowrap;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+      transition: transform 0.38s cubic-bezier(0.34,1.56,0.64,1), opacity 0.38s;
+      opacity: 0; z-index: 200; white-space: nowrap;
     }
     .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
-    .toast.success { border-color: var(--green); color: var(--green); }
-    .toast.error   { border-color: var(--danger); color: var(--danger); }
+    .toast.success { border-color: rgba(37,211,102,0.4); color: #4ade80; }
+    .toast.error   { border-color: rgba(255,91,91,0.4);  color: #fca5a5; }
+
+    /* ── Divider ── */
+    hr {
+      border: none; border-top: 1px solid var(--border);
+    }
 
     /* ── Footer ── */
     footer {
-      margin-top: 32px;
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      opacity: 0.6;
+      margin-top: 36px;
+      text-align: center;
+      display: flex; flex-direction: column; gap: 5px;
+    }
+    .footer-brand {
+      font-size: 0.8rem; color: var(--text-muted);
+    }
+    .footer-brand strong { color: var(--text-sub); font-weight: 600; }
+    .footer-powered {
+      font-size: 0.72rem; color: var(--text-muted); opacity: 0.55;
+      display: flex; align-items: center; justify-content: center; gap: 5px;
+    }
+    .green-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--green); display: inline-block;
     }
   </style>
 </head>
 <body>
 
 <header>
-  <div class="logo">
-    <!-- WhatsApp icon -->
-    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
-    </svg>
+  <div class="logo-wrap">
+    <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
   </div>
-  <div>
-    <h1>שליחת ווצאפ בתפוצה</h1>
-    <p>מופעל על-ידי רב-מסר</p>
-  </div>
+  <h1>שליחת ווצאפ בתפוצה</h1>
+  <p class="sub">בנוי ע"י מוסי שיינר</p>
 </header>
+
+<!-- GREEN API Status -->
+<div class="status-bar loading" id="statusBar">
+  <div class="status-icon"><div class="spinner"></div></div>
+  <div class="status-body">
+    <strong>בודק חיבור GREEN API...</strong>
+  </div>
+</div>
 
 <div class="card">
 
@@ -294,118 +420,252 @@
         <option value="" disabled selected>— בחרי רשימה —</option>
       </select>
     </div>
-    <div id="listsError" class="error-banner">לא ניתן לטעון רשימות. נסי לרענן.</div>
+    <div id="selectMeta" class="select-meta" style="display:none;">
+      <span id="membersDisplay"></span>
+    </div>
+    <div id="listsError" class="err-inline">לא ניתן לטעון רשימות. נסי לרענן.</div>
   </div>
 
+  <hr />
+
   <div class="field">
-    <label>הודעה</label>
+    <label>תוכן ההודעה</label>
     <textarea
       id="message"
       placeholder="הקלידי את תוכן ההודעה כאן..."
       maxlength="4096"
     ></textarea>
-    <span class="char-count"><span id="charCount">0</span> / 4096 תווים</span>
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <span style="font-size:0.72rem;color:var(--text-muted)">תמיכה ב-Emoji ועיצוב ווצאפ (*מודגש*, _נטוי_)</span>
+      <span class="char-count"><span id="charCount">0</span> / 4096</span>
+    </div>
   </div>
 
-  <div id="sendError" class="error-banner"></div>
+  <div id="sendError" class="err-inline"></div>
 
   <button class="btn-send" id="sendBtn" disabled>
     <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-    שלח הודעה
+    שלח הודעה לרשימה
   </button>
 
 </div>
 
-<footer>כל ההודעות נשלחות דרך רב-מסר</footer>
+<footer>
+  <div class="footer-brand">נבנה ע"י <strong>מוסי שיינר</strong></div>
+  <div class="footer-powered">
+    <span class="green-dot"></span>
+    ההודעות נשלחות דרך GREEN API
+  </div>
+</footer>
 
 <!-- Confirmation modal -->
 <div class="overlay" id="overlay">
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-    <h2 id="modalTitle">אישור שליחה</h2>
+    <div class="modal-head">
+      <div class="icon">
+        <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+      </div>
+      <div>
+        <h2 id="modalTitle">אישור שליחה</h2>
+        <p>בדקי שהפרטים נכונים לפני האישור</p>
+      </div>
+    </div>
     <div class="modal-detail">
-      <div>רשימה: <strong id="confirmList">—</strong></div>
+      <div class="detail-row">
+        <span>רשימה:</span>
+        <span id="confirmList">—</span>
+      </div>
+      <div id="confirmCountRow" class="detail-row" style="display:none;">
+        <span>נמענים:</span>
+        <span id="confirmCount">—</span>
+      </div>
       <div class="preview-msg" id="confirmMsg"></div>
     </div>
-    <p style="font-size:0.82rem;color:var(--text-muted)">ההודעה תישלח לכל אנשי הקשר ברשימה. פעולה זו בלתי הפיכה.</p>
+    <div class="modal-warn">
+      <span>⚠️</span>
+      <span>ההודעה תישלח לכל אנשי הקשר ברשימה. פעולה זו בלתי הפיכה.</span>
+    </div>
     <div class="modal-actions">
       <button class="btn-cancel" id="cancelBtn">ביטול</button>
       <button class="btn-confirm" id="confirmBtn">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-        כן, שלח
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+        כן, שלח עכשיו
       </button>
     </div>
   </div>
 </div>
 
-<!-- Toast -->
 <div class="toast" id="toast" role="alert" aria-live="polite"></div>
 
 <script>
   const GET_LISTS_URL = 'https://hook.eu1.make.com/7kxf0rwpufs11u9w7vrev333d5pqgv57';
   const SEND_URL      = 'https://hook.eu1.make.com/8r0p1dqtlqul4i3rexil6o8s0uxkx8iu';
+  const GREEN_ID      = '1101869854';
+  const GREEN_TOKEN   = '98fa934eede54e25a65c9d91885d356eb88db0ef7fd245398a';
+  const GREEN_STATUS_URL = `https://api.green-api.com/waInstance${GREEN_ID}/getStateInstance/${GREEN_TOKEN}`;
+  const GREEN_QR_URL     = `https://qr.green-api.com/waInstance${GREEN_ID}/${GREEN_TOKEN}`;
 
-  const listSelect   = document.getElementById('listSelect');
-  const messageEl    = document.getElementById('message');
-  const sendBtn      = document.getElementById('sendBtn');
-  const charCount    = document.getElementById('charCount');
-  const overlay      = document.getElementById('overlay');
-  const cancelBtn    = document.getElementById('cancelBtn');
-  const confirmBtn   = document.getElementById('confirmBtn');
-  const confirmList  = document.getElementById('confirmList');
-  const confirmMsg   = document.getElementById('confirmMsg');
-  const toast        = document.getElementById('toast');
-  const listsLoading = document.getElementById('listsLoading');
-  const selectWrap   = document.getElementById('selectWrap');
-  const listsError   = document.getElementById('listsError');
-  const sendError    = document.getElementById('sendError');
+  const listSelect      = document.getElementById('listSelect');
+  const messageEl       = document.getElementById('message');
+  const sendBtn         = document.getElementById('sendBtn');
+  const charCount       = document.getElementById('charCount');
+  const overlay         = document.getElementById('overlay');
+  const cancelBtn       = document.getElementById('cancelBtn');
+  const confirmBtn      = document.getElementById('confirmBtn');
+  const confirmList     = document.getElementById('confirmList');
+  const confirmMsg      = document.getElementById('confirmMsg');
+  const confirmCount    = document.getElementById('confirmCount');
+  const confirmCountRow = document.getElementById('confirmCountRow');
+  const toast           = document.getElementById('toast');
+  const listsLoading    = document.getElementById('listsLoading');
+  const selectWrap      = document.getElementById('selectWrap');
+  const selectMeta      = document.getElementById('selectMeta');
+  const membersDisplay  = document.getElementById('membersDisplay');
+  const listsError      = document.getElementById('listsError');
+  const sendError       = document.getElementById('sendError');
+  const statusBar       = document.getElementById('statusBar');
 
-  // ── Load lists ──────────────────────────────────────────
+  let greenConnected = false;
+  let listsData = [];
+
+  // ── GREEN API Status ──────────────────────────────────────
+  async function checkGreenStatus() {
+    statusBar.className = 'status-bar loading';
+    statusBar.innerHTML = `
+      <div class="status-icon"><div class="spinner"></div></div>
+      <div class="status-body"><strong>בודק חיבור GREEN API...</strong></div>`;
+    try {
+      const res  = await fetch(GREEN_STATUS_URL);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      const state = data.stateInstance;
+
+      if (state === 'authorized') {
+        greenConnected = true;
+        statusBar.className = 'status-bar ok';
+        statusBar.innerHTML = `
+          <div class="status-icon">✅</div>
+          <div class="status-body"><strong>GREEN API מחובר ופעיל</strong><br>ניתן לשלוח הודעות</div>`;
+        checkReady();
+      } else if (state === 'notAuthorized') {
+        greenConnected = false;
+        statusBar.className = 'status-bar qr';
+        statusBar.innerHTML = `
+          <div class="status-icon">📱</div>
+          <div class="status-body">
+            <strong>ווצאפ לא מחובר</strong>
+            יש לסרוק ברקוד כדי לחבר את חשבון הווצאפ
+            <br><a class="btn-qr" href="${GREEN_QR_URL}" target="_blank" rel="noopener">
+              📷 פתח דף סריקת ברקוד
+            </a>
+          </div>`;
+        checkReady();
+      } else if (state === 'blocked') {
+        greenConnected = false;
+        statusBar.className = 'status-bar pay';
+        statusBar.innerHTML = `
+          <div class="status-icon">💳</div>
+          <div class="status-body">
+            <strong>החשבון חסום — נדרש תשלום</strong>
+            מנוי GREEN API פג תוקפו. יש לחדש כדי להמשיך לשלוח הודעות.
+          </div>`;
+        checkReady();
+      } else if (state === 'sleepMode') {
+        greenConnected = false;
+        statusBar.className = 'status-bar pay';
+        statusBar.innerHTML = `
+          <div class="status-icon">💤</div>
+          <div class="status-body">
+            <strong>ה-Instance במצב שינה</strong>
+            יש להפעיל מחדש את ה-Instance בלוח הבקרה של GREEN API.
+          </div>`;
+        checkReady();
+      } else {
+        greenConnected = false;
+        statusBar.className = 'status-bar err';
+        statusBar.innerHTML = `
+          <div class="status-icon">⚠️</div>
+          <div class="status-body"><strong>סטטוס לא ידוע: ${state}</strong><br>יש לבדוק את לוח הבקרה של GREEN API.</div>`;
+        checkReady();
+      }
+    } catch {
+      greenConnected = false;
+      statusBar.className = 'status-bar err';
+      statusBar.innerHTML = `
+        <div class="status-icon">❌</div>
+        <div class="status-body">
+          <strong>לא ניתן להתחבר ל-GREEN API</strong>
+          בדקי חיבור לאינטרנט ונסי שוב.
+          <br><button class="btn-qr" onclick="checkGreenStatus()" style="margin-top:8px;">🔄 נסה שוב</button>
+        </div>`;
+      checkReady();
+    }
+  }
+
+  // ── Load lists ────────────────────────────────────────────
   async function loadLists() {
     try {
       const res  = await fetch(GET_LISTS_URL);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
 
-      // Support array of {id, name} OR array of strings
-      const lists = Array.isArray(data) ? data : (data.lists || data.data || []);
+      listsData = Array.isArray(data) ? data : (data.lists || data.data || []);
 
-      lists.forEach(item => {
+      listsData.forEach(item => {
         const opt = document.createElement('option');
-        if (typeof item === 'string') {
-          opt.value = item;
-          opt.textContent = item;
-        } else {
-          opt.value = item.id ?? item.list_id ?? item.name;
-          opt.textContent = item.name ?? item.title ?? item.label ?? opt.value;
-        }
+        const id   = item.id   ?? item.list_id ?? item.name ?? item;
+        const name = item.name ?? item.title   ?? item.label ?? id;
+        const cnt  = item.contacts_count ?? item.count ?? item.members_count ?? item.members ?? item.size ?? null;
+        opt.value = id;
+        opt.textContent = cnt !== null ? `${name}  (${cnt} נמענים)` : name;
+        opt.dataset.name = name;
+        opt.dataset.count = cnt !== null ? cnt : '';
         listSelect.appendChild(opt);
       });
 
       listsLoading.style.display = 'none';
       selectWrap.style.display   = 'block';
-    } catch (err) {
+    } catch {
       listsLoading.style.display = 'none';
       listsError.classList.add('visible');
-      console.error('Failed to load lists:', err);
     }
   }
 
-  // ── Enable send button when both fields are filled ──────
+  // ── Enable send button ────────────────────────────────────
   function checkReady() {
-    sendBtn.disabled = !(listSelect.value && messageEl.value.trim());
+    sendBtn.disabled = !(greenConnected && listSelect.value && messageEl.value.trim());
   }
 
-  listSelect.addEventListener('change', checkReady);
+  listSelect.addEventListener('change', () => {
+    const opt = listSelect.options[listSelect.selectedIndex];
+    const cnt = opt?.dataset?.count;
+    if (cnt) {
+      membersDisplay.innerHTML = `<span class="badge-count">👥 ${cnt} נמענים</span>`;
+      selectMeta.style.display = 'flex';
+    } else {
+      selectMeta.style.display = 'none';
+    }
+    checkReady();
+  });
+
   messageEl.addEventListener('input', () => {
     charCount.textContent = messageEl.value.length;
     checkReady();
   });
 
-  // ── Open confirmation modal ──────────────────────────────
+  // ── Open confirmation modal ───────────────────────────────
   sendBtn.addEventListener('click', () => {
     sendError.classList.remove('visible');
-    confirmList.textContent = listSelect.options[listSelect.selectedIndex]?.text ?? listSelect.value;
-    confirmMsg.textContent  = messageEl.value.trim();
+    const opt = listSelect.options[listSelect.selectedIndex];
+    confirmList.textContent = opt?.dataset?.name ?? opt?.text ?? listSelect.value;
+    const cnt = opt?.dataset?.count;
+    if (cnt) {
+      confirmCount.textContent = `${cnt} נמענים`;
+      confirmCountRow.style.display = 'flex';
+    } else {
+      confirmCountRow.style.display = 'none';
+    }
+    confirmMsg.textContent = messageEl.value.trim();
     overlay.classList.add('open');
     confirmBtn.focus();
   });
@@ -413,56 +673,50 @@
   cancelBtn.addEventListener('click', closeModal);
   overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
-
   function closeModal() { overlay.classList.remove('open'); }
 
-  // ── Send ────────────────────────────────────────────────
+  // ── Send ──────────────────────────────────────────────────
   confirmBtn.addEventListener('click', async () => {
     confirmBtn.disabled = true;
-    confirmBtn.innerHTML = '<div class="spinner" style="border-top-color:#fff;width:16px;height:16px;"></div> שולח...';
-
-    const payload = {
-      list_id: listSelect.value,
-      message: messageEl.value.trim()
-    };
+    confirmBtn.innerHTML = '<div class="spinner" style="border-top-color:#fff;width:16px;height:16px;border-width:2px;"></div> שולח...';
 
     try {
       const res = await fetch(SEND_URL, {
-        method:  'POST',
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify(payload)
+        body: JSON.stringify({ list_id: listSelect.value, message: messageEl.value.trim() })
       });
-
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
       closeModal();
-      showToast('ההודעה נשלחה בהצלחה!', 'success');
+      showToast('✅ ההודעה נשלחה בהצלחה!', 'success');
       messageEl.value = '';
       charCount.textContent = '0';
       listSelect.value = '';
+      selectMeta.style.display = 'none';
       sendBtn.disabled = true;
-    } catch (err) {
+    } catch {
       closeModal();
       sendError.textContent = 'שליחה נכשלה. אנא נסי שוב.';
       sendError.classList.add('visible');
       showToast('שגיאה בשליחה', 'error');
-      console.error('Send error:', err);
     } finally {
       confirmBtn.disabled = false;
-      confirmBtn.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> כן, שלח';
+      confirmBtn.innerHTML = '<svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> כן, שלח עכשיו';
     }
   });
 
-  // ── Toast helper ────────────────────────────────────────
+  // ── Toast ─────────────────────────────────────────────────
   let toastTimer;
   function showToast(msg, type = 'success') {
     clearTimeout(toastTimer);
     toast.textContent = msg;
     toast.className   = `toast ${type} show`;
-    toastTimer = setTimeout(() => { toast.classList.remove('show'); }, 3500);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 3500);
   }
 
-  // ── Init ────────────────────────────────────────────────
+  // ── Init ──────────────────────────────────────────────────
+  checkGreenStatus();
   loadLists();
 </script>
 </body>
